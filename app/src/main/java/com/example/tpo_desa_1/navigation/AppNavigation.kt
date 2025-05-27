@@ -12,11 +12,15 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tpo_desa_1.ui.screens.RecipesScreen
 import com.example.tpo_desa_1.ui.screens.SavedScreen
 import com.example.tpo_desa_1.ui.screens.ProfileScreen
-
+import com.example.tpo_desa_1.ui.screens.SessionSwitchScreen
+import com.example.tpo_desa_1.viewmodel.SessionViewModel
 
 
 sealed class Screen(
@@ -29,11 +33,17 @@ sealed class Screen(
     data object Recipes : Screen("recipes", "Recetas", Icons.Default.MenuBook)
     data object Saved : Screen("saved", "Guardadas", Icons.Default.Bookmark)
     data object Profile : Screen("profile", "Perfil", Icons.Default.Person)
+    data object SessionSwitch : Screen("session", "Sesión", null)
+
 }
 
-
 @Composable
-fun AppNavigation(navController: NavHostController = rememberNavController()) {
+fun AppNavigation(
+    navController: NavHostController = rememberNavController(),
+    sessionViewModel: SessionViewModel = viewModel()
+) {
+    val isLoggedIn by sessionViewModel.isLoggedIn
+
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
@@ -41,14 +51,50 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Screen.Splash.route) {
             SplashScreen(navController)
         }
+
         composable(Screen.Home.route) {
             HomeScreen(navController)
         }
 
-        composable(Screen.Home.route) { HomeScreen(navController) }
-        composable(Screen.Recipes.route) { RecipesScreen(navController) }
-        composable(Screen.Saved.route) { SavedScreen(navController) }
-        composable(Screen.Profile.route) { ProfileScreen(navController) }
+        composable(Screen.Recipes.route) {
+            if (isLoggedIn) {
+                RecipesScreen(navController,sessionViewModel)
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Screen.SessionSwitch.route) {
+                        popUpTo(Screen.Recipes.route) { inclusive = true }
+                    }
+                }
+            }
+        }
 
+        composable(Screen.Saved.route) {
+            if (isLoggedIn) {
+                SavedScreen(navController,sessionViewModel)
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Screen.SessionSwitch.route) {
+                        popUpTo(Screen.Saved.route) { inclusive = true }
+                    }
+                }
+            }
+        }
+
+        composable(Screen.Profile.route) {
+            if (isLoggedIn) {
+                ProfileScreen(navController,sessionViewModel)
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Screen.SessionSwitch.route) {
+                        popUpTo(Screen.Profile.route) { inclusive = true }
+                    }
+                }
+            }
+        }
+
+        composable(Screen.SessionSwitch.route) {
+            SessionSwitchScreen(navController, sessionViewModel)
+        }
     }
 }
+

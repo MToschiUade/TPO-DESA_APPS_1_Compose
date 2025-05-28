@@ -15,6 +15,9 @@ interface RecetaDao {
     @Query("SELECT * FROM recetas")
     suspend fun obtenerTodas(): List<Receta>
 
+    @Query("SELECT * FROM recetas WHERE estado = 'aprobada' ORDER BY fechaRevision DESC LIMIT 3")
+    suspend fun obtenerRecientesAprobadas(): List<Receta>
+
     @Delete
     suspend fun eliminar(receta: Receta)
 }

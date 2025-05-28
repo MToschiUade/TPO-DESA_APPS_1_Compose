@@ -18,17 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tpo_desa_1.R
-
-data class Recommendation(val title: String, val time: String, val imageRes: Int)
-
-private val sampleRecommendations = listOf(
-    Recommendation("Tacos Mingo", "25 min", R.drawable.tacos),
-    Recommendation("Burgers Max", "30 min", R.drawable.burger),
-    Recommendation("Pasta Bella", "20 min", R.drawable.pasta)
-)
+import com.example.tpo_desa_1.data.model.Receta
 
 @Composable
-fun RecommendationCarousel() {
+fun RecommendationCarousel(recetas: List<Receta>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,7 +42,7 @@ fun RecommendationCarousel() {
                 .padding(start = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(sampleRecommendations) { item ->
+            items(recetas) { receta ->
                 Box(
                     modifier = Modifier
                         .width(260.dp)
@@ -57,8 +50,8 @@ fun RecommendationCarousel() {
                         .clip(RoundedCornerShape(16.dp))
                 ) {
                     Image(
-                        painter = painterResource(id = item.imageRes),
-                        contentDescription = item.title,
+                        painter = painterResource(id = R.drawable.tacos), // TODO: Reemplazar con un mapeo real a imágenes
+                        contentDescription = receta.nombre,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -69,13 +62,13 @@ fun RecommendationCarousel() {
                         verticalArrangement = Arrangement.Bottom
                     ) {
                         Text(
-                            text = item.title,
+                            text = receta.nombre,
                             color = Color.White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Tiempo de preparación: ${item.time}",
+                            text = "Tiempo de preparación: ${receta.tiempo} min",
                             color = Color.White,
                             fontSize = 12.sp
                         )

@@ -12,4 +12,10 @@ class RecetaRepository(private val dao: RecetaDao) {
     }
 
     suspend fun obtener(nombre: String): Receta? = dao.obtenerPorNombre(nombre)
+
+    suspend fun obtenerTodas(): List<Receta> = dao.obtenerTodas()
+
+    suspend fun obtenerRecetasAprobadasRecientes(): List<Receta> =
+        dao.obtenerRecientesAprobadas()
+
 }

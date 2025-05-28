@@ -18,6 +18,9 @@ import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.data.db.AppDatabase
 
+import androidx.compose.runtime.getValue
+
+
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -29,10 +32,14 @@ fun HomeScreen(navController: NavController) {
     )
 
     val recetasAprobadasRecientes by viewModel.recetasAprobadasRecientes
+    val recetasAprobadas by viewModel.recetasAprobadas
+
 
     LaunchedEffect(Unit) {
         viewModel.cargarRecientesAprobadas()
+        viewModel.cargarRecetasAprobadas()
     }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -59,7 +66,8 @@ fun HomeScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
             RecommendationCarousel(recetas = recetasAprobadasRecientes)
             Spacer(modifier = Modifier.height(8.dp))
-            RecipeListSection()
+            RecipeListSection(recetas = recetasAprobadas.shuffled())
+
         }
     }
 }

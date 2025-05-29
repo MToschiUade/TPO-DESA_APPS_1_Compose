@@ -40,9 +40,9 @@ sealed class Screen(
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    sessionViewModel: SessionViewModel = viewModel()
+    sessionViewModel: SessionViewModel
 ) {
-    val isLoggedIn by sessionViewModel.isLoggedIn
+    val usuarioLogueado by sessionViewModel.usuarioLogueado
 
     NavHost(
         navController = navController,
@@ -57,8 +57,8 @@ fun AppNavigation(
         }
 
         composable(Screen.Recipes.route) {
-            if (isLoggedIn) {
-                RecipesScreen(navController,sessionViewModel)
+            if (usuarioLogueado != null) {
+                RecipesScreen(navController, sessionViewModel)
             } else {
                 LaunchedEffect(Unit) {
                     navController.navigate(Screen.SessionSwitch.route) {
@@ -69,8 +69,8 @@ fun AppNavigation(
         }
 
         composable(Screen.Saved.route) {
-            if (isLoggedIn) {
-                SavedScreen(navController,sessionViewModel)
+            if (usuarioLogueado != null) {
+                SavedScreen(navController, sessionViewModel)
             } else {
                 LaunchedEffect(Unit) {
                     navController.navigate(Screen.SessionSwitch.route) {
@@ -81,8 +81,8 @@ fun AppNavigation(
         }
 
         composable(Screen.Profile.route) {
-            if (isLoggedIn) {
-                ProfileScreen(navController,sessionViewModel)
+            if (usuarioLogueado != null) {
+                ProfileScreen(navController, sessionViewModel)
             } else {
                 LaunchedEffect(Unit) {
                     navController.navigate(Screen.SessionSwitch.route) {
@@ -97,4 +97,3 @@ fun AppNavigation(
         }
     }
 }
-

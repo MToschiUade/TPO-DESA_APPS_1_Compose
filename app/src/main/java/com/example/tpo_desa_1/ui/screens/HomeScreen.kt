@@ -19,7 +19,9 @@ import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.data.db.AppDatabase
 
 import androidx.compose.runtime.getValue
-
+import com.example.tpo_desa_1.repository.UsuarioRepository
+import com.example.tpo_desa_1.viewmodel.SessionViewModel
+import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
 
 
 @Composable
@@ -27,19 +29,26 @@ fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
     val recetaDao = AppDatabase.getDatabase(context).recetaDao()
     val repository = remember { RecetaRepository(recetaDao) }
+
     val viewModel: RecetaViewModel = viewModel(
         factory = RecetaViewModelFactory(repository)
     )
-
     val recetasAprobadasRecientes by viewModel.recetasAprobadasRecientes
     val recetasAprobadas by viewModel.recetasAprobadas
-
 
     LaunchedEffect(Unit) {
         viewModel.cargarRecientesAprobadas()
         viewModel.cargarRecetasAprobadas()
     }
 
+    // Usuario ---
+    val usuarioDao = AppDatabase.getDatabase(context).usuarioDao()
+    val usuarioRepository = remember { UsuarioRepository(usuarioDao) }
+    val sessionViewModel: SessionViewModel = viewModel(
+        factory = SessionViewModelFactory(usuarioRepository)
+    )
+
+    // --- Usuario
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -67,8 +76,6 @@ fun HomeScreen(navController: NavController) {
             RecommendationCarousel(recetas = recetasAprobadasRecientes)
             Spacer(modifier = Modifier.height(8.dp))
             RecipeListSection(recetas = recetasAprobadas.shuffled())
-
         }
     }
 }
-

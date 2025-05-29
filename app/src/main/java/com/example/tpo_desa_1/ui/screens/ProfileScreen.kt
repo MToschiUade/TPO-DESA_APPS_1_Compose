@@ -13,7 +13,7 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModel
 @Composable
 fun ProfileScreen(navController: NavController,
                   sessionViewModel: SessionViewModel) {
-    val isLoggedIn = sessionViewModel.isLoggedIn.value
+    val usuario = sessionViewModel.usuarioLogueado.value
 
     ScreenWithBottomBar(navController = navController) { innerPadding ->
         Box(
@@ -22,7 +22,7 @@ fun ProfileScreen(navController: NavController,
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            if (isLoggedIn) {
+            if (usuario != null) {
                 Text("Perfil")
             } else {
                 Text("Iniciá sesión para ver tu Perfil")

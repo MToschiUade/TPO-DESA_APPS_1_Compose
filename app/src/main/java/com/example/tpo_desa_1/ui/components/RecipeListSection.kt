@@ -25,6 +25,8 @@ import com.example.tpo_desa_1.R.drawable.recipe_ribs
 import com.example.tpo_desa_1.data.model.Receta
 
 
+import coil.compose.AsyncImage
+
 @Composable
 fun RecipeListSection(recetas: List<Receta>) {
     Column(
@@ -35,7 +37,7 @@ fun RecipeListSection(recetas: List<Receta>) {
         Text(
             text = "Más recetas para vos",
             fontSize = 18.sp,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+            fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(vertical = 12.dp)
         )
 
@@ -44,13 +46,11 @@ fun RecipeListSection(recetas: List<Receta>) {
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             items(recetas) { receta ->
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Image(
-                        painter = painterResource(id = recipe_ribs), // ← Cambiá esto si tenés distintas imágenes
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    AsyncImage(
+                        model = receta.imagenPortadaUrl,
                         contentDescription = receta.nombre,
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(80.dp)
                             .clip(RoundedCornerShape(12.dp))
@@ -64,7 +64,7 @@ fun RecipeListSection(recetas: List<Receta>) {
                     ) {
                         Text(
                             text = receta.nombre,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                             color = Color.Black
                         )
@@ -89,6 +89,7 @@ fun RecipeListSection(recetas: List<Receta>) {
         }
     }
 }
+
 
 // 👉 Función utilitaria para mostrar tiempos más legibles
 fun formatTiempo(minutos: Int): String {

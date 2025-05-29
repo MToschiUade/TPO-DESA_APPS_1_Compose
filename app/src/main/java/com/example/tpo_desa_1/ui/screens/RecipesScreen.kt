@@ -13,7 +13,8 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModel
 @Composable
 fun RecipesScreen(navController: NavController,
                   sessionViewModel: SessionViewModel) {
-    val isLoggedIn = sessionViewModel.isLoggedIn.value
+    val usuario = sessionViewModel.usuarioLogueado.value
+
 
     ScreenWithBottomBar(navController = navController) { innerPadding ->
         Box(
@@ -22,7 +23,7 @@ fun RecipesScreen(navController: NavController,
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            if (isLoggedIn) {
+            if (usuario != null) {
                 Text("Recetas")
             } else {
                 Text("Iniciá sesión para ver tus recetas")

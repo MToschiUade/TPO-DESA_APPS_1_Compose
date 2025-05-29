@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Receta
 
+import coil.compose.AsyncImage
+
 @Composable
 fun RecommendationCarousel(recetas: List<Receta>) {
     Column(
@@ -49,8 +51,8 @@ fun RecommendationCarousel(recetas: List<Receta>) {
                         .height(160.dp)
                         .clip(RoundedCornerShape(16.dp))
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.tacos), // TODO: Reemplazar con un mapeo real a imágenes
+                    AsyncImage(
+                        model = receta.imagenPortadaUrl,
                         contentDescription = receta.nombre,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()

@@ -9,5 +9,6 @@ data class Receta(
     val puntaje: Int,
     val tiempo: Int,
     val estado:  String, // "aprobada", "pendiente", "rechazada",
-    val fechaRevision: Long? // Epoch timestamp (nullable, porque puede no estar aprobada) TODO: revisar cuando se integre con el back conversión de el dato de fecha a timeStamp
+    val fechaRevision: Long?, // Epoch timestamp (nullable, porque puede no estar aprobada) TODO: revisar cuando se integre con el back conversión de el dato de fecha a timeStamp
+    val imagenPortadaUrl: String
 )

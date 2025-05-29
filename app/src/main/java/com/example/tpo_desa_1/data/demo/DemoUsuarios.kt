@@ -6,5 +6,4 @@ val usuarioDemo = Usuario(
     email = "demo@recetas.app",
     alias = "ChefDemo",
     password = "demo123"
-
 )

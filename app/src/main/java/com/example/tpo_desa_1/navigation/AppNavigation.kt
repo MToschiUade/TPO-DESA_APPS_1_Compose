@@ -81,15 +81,16 @@ fun AppNavigation(
         }
 
         composable(Screen.Profile.route) {
-            if (usuarioLogueado != null) {
-                ProfileScreen(navController, sessionViewModel)
-            } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(Screen.SessionSwitch.route) {
-                        popUpTo(Screen.Profile.route) { inclusive = true }
-                    }
-                }
-            }
+            ProfileScreen(navController, sessionViewModel) // esto se saca y se descomenta lo otro para que aparezca la pantalla de iniciar sesion en el caso que este logueado un usuario.
+            //if (usuarioLogueado != null) {
+                //ProfileScreen(navController, sessionViewModel)
+            //} else {
+              //  LaunchedEffect(Unit) {
+                //    navController.navigate(Screen.SessionSwitch.route) {
+                  //      popUpTo(Screen.Profile.route) { inclusive = true }
+                    //}
+                //}
+           // }
         }
 
         composable(Screen.SessionSwitch.route) {

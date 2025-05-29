@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
     kotlin("kapt")
 }
 
@@ -65,6 +66,7 @@ dependencies {
 
     // Room + Coroutines support
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
     implementation("io.coil-kt:coil-compose:2.5.0") // versión estable actual
 

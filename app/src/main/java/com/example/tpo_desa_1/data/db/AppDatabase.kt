@@ -4,10 +4,15 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.tpo_desa_1.data.demo.usuarioDemo
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.model.Usuario
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-@Database(entities = [Receta::class, Usuario::class], version = 3)
+@Database(entities = [Receta::class, Usuario::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recetaDao(): RecetaDao
     abstract fun usuarioDao(): UsuarioDao
@@ -23,11 +28,22 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "recetas_db"
                 )
-                    .fallbackToDestructiveMigration() // ← Esta línea
+                    .fallbackToDestructiveMigration()
+                    .addCallback(object : RoomDatabase.Callback() {
+                        override fun onCreate(db: SupportSQLiteDatabase) {
+                            super.onCreate(db)
+                            // Inserción del usuario demo en un hilo separado
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val dao = getDatabase(context).usuarioDao()
+                                dao.insertar(usuarioDemo)
+                            }
+                        }
+                    })
                     .build().also {
-                    INSTANCE = it
-                }
+                        INSTANCE = it
+                    }
             }
         }
+
     }
 }

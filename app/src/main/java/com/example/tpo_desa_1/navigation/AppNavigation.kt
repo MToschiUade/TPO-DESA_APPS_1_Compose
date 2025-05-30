@@ -98,7 +98,7 @@ fun AppNavigation(
         }
 
         composable("detalle_receta/{recetaId}") { backStackEntry ->
-            val recetaId = backStackEntry.arguments?.getString("recetaId")?.toLongOrNull()
+            val recetaId = backStackEntry.arguments?.getString("recetaId")?.toIntOrNull()
             recetaId?.let {
                 RecetaDetailScreen(recetaId = it, navController = navController)
             }

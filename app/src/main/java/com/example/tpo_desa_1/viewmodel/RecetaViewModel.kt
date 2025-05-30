@@ -42,10 +42,10 @@ class RecetaViewModel(
         }
     }
 
-    fun obtenerPorId(id: Long): State<Receta?> {
+    fun obtenerPorId(id: Int): State<Receta?> {
         val recetaState = mutableStateOf<Receta?>(null)
         viewModelScope.launch {
-            recetaState.value = repository.obtener(id)
+            recetaState.value = repository.obtenerPorId(id)
         }
         return recetaState
     }

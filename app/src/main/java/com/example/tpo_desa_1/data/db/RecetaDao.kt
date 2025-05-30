@@ -30,8 +30,11 @@ interface RecetaDao {
     @Delete
     suspend fun eliminar(receta: Receta)
 
-    @Query("SELECT * FROM recetas WHERE alias = :alias")
-    suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta>
+    @Query("SELECT * FROM recetas WHERE autor = :autor")
+    suspend fun obtenerRecetasPorUsuario(autor: String): List<Receta>
+
+    @Query("SELECT * FROM recetas WHERE id = :id")
+    suspend fun obtenerPorId(id: Int): Receta?
 
     // Guardado de recetas futuras (comentado por ahora)
     // @Query("SELECT * FROM recetas WHERE emailUsuario = :email")

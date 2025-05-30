@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.data.db.AppDatabase
@@ -14,7 +15,7 @@ import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 
 @Composable
-fun RecetaDetailScreen(recetaId: Long, navController: NavController) {
+fun RecetaDetailScreen(recetaId: Int, navController: NavController) {
     val context = LocalContext.current
     val recetaDao = AppDatabase.getDatabase(context).recetaDao()
     val repository = remember { RecetaRepository(recetaDao) }
@@ -34,10 +35,10 @@ fun RecetaDetailScreen(recetaId: Long, navController: NavController) {
         ) {
             receta?.let {
                 Text(text = "Nombre: ${it.nombre}")
-                Text(text = "Autor: ${it.alias}")
+                Text(text = "Autor: ${it.autor}")
                 Text(text = "Tiempo: ${it.tiempo} minutos")
                 Text(text = "Estado: ${it.estado}")
-                Text(text = "Descripción: ${it.descripcion}")
+                //Text(text = "Descripción: ${it.descripcion}")
             } ?: Text(text = "Cargando receta...")
         }
     }

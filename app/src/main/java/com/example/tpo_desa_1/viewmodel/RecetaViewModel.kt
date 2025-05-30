@@ -4,19 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.repository.RecetaRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.State
-import com.example.tpo_desa_1.data.demo.demoRecetas
-
 
 class RecetaViewModel(
-    private val repository: RecetaRepository,
-    loadDemo: Boolean = false
+    private val repository: RecetaRepository
 ) : ViewModel() {
 
     private val _recetas = mutableStateOf<List<Receta>>(emptyList())
@@ -28,21 +21,7 @@ class RecetaViewModel(
     val recetasAprobadas: State<List<Receta>> = _recetasAprobadas
 
     init {
-        if (loadDemo) {
-            cargarDemo()
-        } else {
-            cargarRecetas()
-        }
-    }
-
-    private fun cargarDemo() {
-        viewModelScope.launch {
-            // Solo guarda si aún no están
-            demoRecetas.forEach { receta ->
-                repository.cargarRecetasEnBase(receta)
-            }
-            cargarRecetas()
-        }
+        cargarRecetas()
     }
 
     fun cargarRecetas() {
@@ -62,5 +41,4 @@ class RecetaViewModel(
             _recetasAprobadas.value = repository.obtenerTodasAprobadas()
         }
     }
-
 }

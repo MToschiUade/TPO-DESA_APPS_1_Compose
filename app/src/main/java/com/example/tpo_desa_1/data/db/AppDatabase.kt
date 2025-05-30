@@ -5,14 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.tpo_desa_1.data.demo.usuarioDemo
+import com.example.tpo_desa_1.config.AppConfig
+import com.example.tpo_desa_1.data.demo.demoRecetas
+import com.example.tpo_desa_1.data.demo.demoUsuario
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.model.Usuario
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Receta::class, Usuario::class], version = 5)
+@Database(entities = [Receta::class, Usuario::class], version = 6)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recetaDao(): RecetaDao
     abstract fun usuarioDao(): UsuarioDao
@@ -30,12 +32,10 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                     .fallbackToDestructiveMigration()
                     .addCallback(object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            // Inserción del usuario demo en un hilo separado
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val dao = getDatabase(context).usuarioDao()
-                                dao.insertar(usuarioDemo)
+                        override fun onOpen(db: SupportSQLiteDatabase) {
+                            super.onOpen(db)
+                            if (AppConfig.ENABLE_DEMO_SEEDING) {
+                                seedDemoData(context)
                             }
                         }
                     })
@@ -45,5 +45,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private fun seedDemoData(context: Context) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val db = getDatabase(context)
+                val recetaDao = db.recetaDao()
+                val usuarioDao = db.usuarioDao()
+
+                // Borra todo y recarga siempre que la demo esté habilitada
+                recetaDao.borrarTodas()
+                usuarioDao.insertar(demoUsuario)
+                recetaDao.insertarTodas(demoRecetas)
+            }
+        }
     }
 }

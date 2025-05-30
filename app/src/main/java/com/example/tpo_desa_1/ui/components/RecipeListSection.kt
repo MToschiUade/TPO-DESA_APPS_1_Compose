@@ -148,7 +148,7 @@ fun RecipeListSection(
                             if (mostrarAutor) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "por ${receta.alias}",
+                                    text = "por ${receta.autor}",
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )

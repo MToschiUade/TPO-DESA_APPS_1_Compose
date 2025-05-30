@@ -2,14 +2,21 @@ package com.example.tpo_desa_1.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Index
 
-@Entity(tableName = "recetas")
+@Entity(
+    tableName = "recetas",
+    indices = [Index(value = ["autor", "nombre"], unique = true)]
+)
 data class Receta(
-    @PrimaryKey val nombre: String,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0, // valor por defecto
+    val nombre: String,
     val puntaje: Int,
     val tiempo: Int,
-    val estado:  String, // "aprobada", "pendiente", "rechazada",
-    val fechaRevision: Long?, // Epoch timestamp (nullable, porque puede no estar aprobada) TODO: revisar cuando se integre con el back conversión de el dato de fecha a timeStamp
+    val estado: String,
+    val fechaRevision: Long?,
     val imagenPortadaUrl: String,
-    val alias: String
+    val autor: String
 )
+
+

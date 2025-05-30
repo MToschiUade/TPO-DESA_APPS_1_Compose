@@ -9,6 +9,12 @@ interface RecetaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(receta: Receta)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertarTodas(recetas: List<Receta>)
+
+    @Query("DELETE FROM recetas")
+    suspend fun borrarTodas()
+
     @Query("SELECT * FROM recetas WHERE nombre = :nombre")
     suspend fun obtenerPorNombre(nombre: String): Receta?
 
@@ -27,6 +33,7 @@ interface RecetaDao {
     @Query("SELECT * FROM recetas WHERE alias = :alias")
     suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta>
 
-    //@Query("SELECT * FROM recetas WHERE emailUsuario = :email")
-    //suspend fun obtenerRecetasGuardadas(email: String): List<Receta>
+    // Guardado de recetas futuras (comentado por ahora)
+    // @Query("SELECT * FROM recetas WHERE emailUsuario = :email")
+    // suspend fun obtenerRecetasGuardadas(email: String): List<Receta>
 }

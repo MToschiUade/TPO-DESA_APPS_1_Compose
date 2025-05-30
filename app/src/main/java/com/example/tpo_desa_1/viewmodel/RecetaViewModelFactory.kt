@@ -10,7 +10,7 @@ class RecetaViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RecetaViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return RecetaViewModel(repository, loadDemo = true) as T
+            return RecetaViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

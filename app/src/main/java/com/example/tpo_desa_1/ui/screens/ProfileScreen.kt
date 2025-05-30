@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
-import com.example.tpo_desa_1.ui.components.RecetasList
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import com.example.tpo_desa_1.viewmodel.ProfileViewModel
 import com.example.tpo_desa_1.data.model.Usuario

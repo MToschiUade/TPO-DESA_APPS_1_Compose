@@ -1,6 +1,7 @@
 package com.example.tpo_desa_1.data.db
 
 import androidx.room.*
+import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.model.Usuario
 
 @Dao
@@ -14,4 +15,5 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios WHERE alias = :alias LIMIT 1")
     suspend fun obtenerPorAlias(alias: String): Usuario?
+
 }

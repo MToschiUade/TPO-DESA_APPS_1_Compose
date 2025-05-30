@@ -39,7 +39,7 @@ class RecetaViewModel(
         viewModelScope.launch {
             // Solo guarda si aún no están
             demoRecetas.forEach { receta ->
-                repository.guardarSiEsInteresante(receta)
+                repository.cargarRecetasEnBase(receta)
             }
             cargarRecetas()
         }
@@ -48,13 +48,6 @@ class RecetaViewModel(
     fun cargarRecetas() {
         viewModelScope.launch {
             _recetas.value = repository.obtenerTodas()
-        }
-    }
-
-    fun agregarSiEsInteresante(receta: Receta) {
-        viewModelScope.launch {
-            repository.guardarSiEsInteresante(receta)
-            cargarRecetas()
         }
     }
 

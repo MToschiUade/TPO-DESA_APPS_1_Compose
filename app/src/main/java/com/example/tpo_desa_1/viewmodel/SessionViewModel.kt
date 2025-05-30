@@ -14,15 +14,6 @@ class SessionViewModel(private val usuarioRepository: UsuarioRepository) : ViewM
     private val _usuarioLogueado = mutableStateOf<Usuario?>(null)
     val usuarioLogueado: State<Usuario?> = _usuarioLogueado
 
-    init {
-        // Hardcodeo de sesión iniciada
-        _usuarioLogueado.value = Usuario(
-            email = "melina.dumas@parisian.com",
-            alias = "MelinaD",
-            password = "1234"
-        )
-    }
-
 
     fun login(identificador: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {

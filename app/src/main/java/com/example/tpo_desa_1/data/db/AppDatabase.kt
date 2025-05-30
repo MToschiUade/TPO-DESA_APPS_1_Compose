@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.tpo_desa_1.config.AppConfig
 import com.example.tpo_desa_1.data.demo.demoRecetas
@@ -14,7 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Receta::class, Usuario::class], version = 7)
+@Database(entities = [Receta::class, Usuario::class], version = 8)
+@TypeConverters(Converters::class) // ✅ IMPORTANTE
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recetaDao(): RecetaDao
     abstract fun usuarioDao(): UsuarioDao

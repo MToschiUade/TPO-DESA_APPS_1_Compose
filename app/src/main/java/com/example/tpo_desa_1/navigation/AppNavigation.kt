@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tpo_desa_1.ui.screens.RecipesScreen
 import com.example.tpo_desa_1.ui.screens.SavedScreen
 import com.example.tpo_desa_1.ui.screens.ProfileScreen
+import com.example.tpo_desa_1.ui.screens.RecetaDetailScreen
 import com.example.tpo_desa_1.ui.screens.SessionSwitchScreen
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 
@@ -94,6 +95,13 @@ fun AppNavigation(
 
         composable(Screen.SessionSwitch.route) {
             SessionSwitchScreen(navController, sessionViewModel)
+        }
+
+        composable("detalle_receta/{recetaId}") { backStackEntry ->
+            val recetaId = backStackEntry.arguments?.getString("recetaId")?.toLongOrNull()
+            recetaId?.let {
+                RecetaDetailScreen(recetaId = it, navController = navController)
+            }
         }
     }
 }

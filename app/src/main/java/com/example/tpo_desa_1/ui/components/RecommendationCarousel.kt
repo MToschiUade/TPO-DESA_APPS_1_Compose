@@ -2,6 +2,7 @@ package com.example.tpo_desa_1.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -17,13 +18,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Receta
 
 import coil.compose.AsyncImage
 
 @Composable
-fun RecommendationCarousel(recetas: List<Receta>) {
+fun RecommendationCarousel(recetas: List<Receta>, navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,6 +52,9 @@ fun RecommendationCarousel(recetas: List<Receta>) {
                         .width(260.dp)
                         .height(160.dp)
                         .clip(RoundedCornerShape(16.dp))
+                        .clickable {
+                            navController.navigate("detalle_receta/${receta.id}")
+                        }
                 ) {
                     AsyncImage(
                         model = receta.imagenPortadaUrl,

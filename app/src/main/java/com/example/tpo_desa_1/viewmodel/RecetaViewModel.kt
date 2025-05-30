@@ -41,4 +41,14 @@ class RecetaViewModel(
             _recetasAprobadas.value = repository.obtenerTodasAprobadas()
         }
     }
+
+    fun obtenerPorId(id: Long): State<Receta?> {
+        val recetaState = mutableStateOf<Receta?>(null)
+        viewModelScope.launch {
+            recetaState.value = repository.obtener(id)
+        }
+        return recetaState
+    }
+
+
 }

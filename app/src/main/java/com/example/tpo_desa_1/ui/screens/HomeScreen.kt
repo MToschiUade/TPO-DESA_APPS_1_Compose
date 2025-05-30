@@ -73,7 +73,8 @@ fun HomeScreen(navController: NavController) {
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            RecommendationCarousel(recetas = recetasAprobadasRecientes)
+            RecommendationCarousel(recetas = recetasAprobadasRecientes, navController = navController)
+
             Spacer(modifier = Modifier.height(8.dp))
             RecipeListSection(
                 recetas = recetasAprobadas.shuffled(),
@@ -82,7 +83,8 @@ fun HomeScreen(navController: NavController) {
                 mostrarEstado = false,
                 mostrarPuntaje = true,
                 mostrarAutor = true,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                navController = navController
             )
 
         }

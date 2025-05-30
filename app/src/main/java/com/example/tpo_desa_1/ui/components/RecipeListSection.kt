@@ -2,6 +2,7 @@ package com.example.tpo_desa_1.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
+import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.R.drawable.recipe_ribs
 import com.example.tpo_desa_1.data.model.Receta
@@ -38,7 +40,8 @@ fun RecipeListSection(
     mostrarEstado: Boolean = false,
     mostrarPuntaje: Boolean = false,
     mostrarAutor: Boolean = false,
-    maxItems: Int? = null
+    maxItems: Int? = null,
+    navController: NavController
 ) {
     Column(
         modifier = modifier
@@ -58,7 +61,9 @@ fun RecipeListSection(
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             items(recetas.take(maxItems ?: recetas.size)) { receta ->
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(    modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navController.navigate("detalle_receta/${receta.id}") }) {
                     AsyncImage(
                         model = receta.imagenPortadaUrl,
                         contentDescription = receta.nombre,

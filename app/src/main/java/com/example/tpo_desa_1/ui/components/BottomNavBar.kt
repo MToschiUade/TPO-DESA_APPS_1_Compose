@@ -29,11 +29,22 @@ fun BottomNavBar(navController: NavController) {
                 selected = currentRoute == screen.route,
                 onClick = {
                     if (currentRoute != screen.route) {
+                        // TODO Revisar que vamos a querer hacer con esta navegación la comentada es la que mostre en el video
+//                        navController.navigate(screen.route) {
+//                            popUpTo(Screen.Home.route) { saveState = true }
+//                            launchSingleTop = true
+//                            restoreState = true
+//                        }
+
+                        // Esta es que si tocas inicio u otra pantalla no te mantiene la receta que estabas viendo
                         navController.navigate(screen.route) {
-                            popUpTo(Screen.Home.route) { saveState = true }
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }
+
                     }
                 },
                 icon = {

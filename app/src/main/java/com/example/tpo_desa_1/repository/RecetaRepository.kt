@@ -21,4 +21,9 @@ class RecetaRepository(private val dao: RecetaDao) {
     suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta> {
         return dao.obtenerRecetasPorUsuario(alias)
     }
+
+    suspend fun obtenerPorId(id: Int): Receta? {
+        return dao.obtenerPorId(id)
+    }
+
 }

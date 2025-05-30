@@ -14,6 +14,7 @@ class SessionViewModel(private val usuarioRepository: UsuarioRepository) : ViewM
     private val _usuarioLogueado = mutableStateOf<Usuario?>(null)
     val usuarioLogueado: State<Usuario?> = _usuarioLogueado
 
+
     fun login(identificador: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             val usuario = usuarioRepository.login(identificador, password)

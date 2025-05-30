@@ -19,4 +19,8 @@ class RecetaRepository(private val dao: RecetaDao) {
         dao.obtenerRecientesAprobadas()
 
     suspend fun obtenerTodasAprobadas(): List<Receta> = dao.obtenerAprobadas()
+
+    suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta> {
+        return dao.obtenerRecetasPorUsuario(alias)
+    }
 }

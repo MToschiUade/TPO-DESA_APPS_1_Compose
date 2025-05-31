@@ -15,10 +15,12 @@ class RecetaViewModel(
     private val _recetas = mutableStateOf<List<Receta>>(emptyList())
     private val _recetasAprobadasRecientes = mutableStateOf<List<Receta>>(emptyList())
     private val _recetasAprobadas = mutableStateOf<List<Receta>>(emptyList())
+    private val _recetasDelUsuario = mutableStateOf<List<Receta>>(emptyList())
 
     val recetas: State<List<Receta>> = _recetas
     val recetasAprobadasRecientes: State<List<Receta>> = _recetasAprobadasRecientes
     val recetasAprobadas: State<List<Receta>> = _recetasAprobadas
+    val recetasDelUsuario: State<List<Receta>> = _recetasDelUsuario
 
     init {
         cargarRecetas()
@@ -50,5 +52,10 @@ class RecetaViewModel(
         return recetaState
     }
 
+    fun cargarRecetasDelUsuario(alias: String) {
+        viewModelScope.launch {
+            _recetasDelUsuario.value = repository.obtenerRecetasPorUsuario(alias)
+        }
+    }
 
 }

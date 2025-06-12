@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tpo_desa_1.data.model.Usuario
 import com.example.tpo_desa_1.ui.screens.RecipesScreen
 import com.example.tpo_desa_1.ui.screens.SavedScreen
 import com.example.tpo_desa_1.ui.screens.ProfileScreen
@@ -44,9 +46,10 @@ sealed class Screen(
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
+    usuarioLogueado: Usuario? // nuevo
 ) {
-    val usuarioLogueado by sessionViewModel.usuarioLogueado
+    //val usuarioLogueado by sessionViewModel.usuarioLogueado
 
     NavHost(
         navController = navController,

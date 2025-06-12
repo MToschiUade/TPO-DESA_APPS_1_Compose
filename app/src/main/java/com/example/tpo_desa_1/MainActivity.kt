@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.example.tpo_desa_1.data.db.AppDatabase
@@ -30,7 +31,9 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                AppNavigation(sessionViewModel = sessionViewModel)
+                //AppNavigation(sessionViewModel = sessionViewModel)
+                val usuarioLogueado by sessionViewModel.usuarioLogueado
+                AppNavigation(sessionViewModel = sessionViewModel, usuarioLogueado = usuarioLogueado)
             }
         }
     }

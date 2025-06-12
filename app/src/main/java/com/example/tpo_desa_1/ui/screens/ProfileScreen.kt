@@ -26,15 +26,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import com.example.tpo_desa_1.data.model.Receta
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.tpo_desa_1.data.db.AppDatabase
+import com.example.tpo_desa_1.navigation.Screen
 import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.viewmodel.ProfileViewModelFactory
-
-
-
-
-
 
 @Composable
 fun ProfileScreen(
@@ -62,7 +61,7 @@ fun ProfileScreen(
         Box(modifier = Modifier.padding(innerPadding)) {
             usuario?.let {
                 Column {
-                    UserProfileSection(it, recetasCreadas)
+                    UserProfileSection(it, recetasCreadas, navController, sessionViewModel)
                 }
             } ?: Text("Iniciá sesión para ver el perfil")
         }
@@ -70,7 +69,10 @@ fun ProfileScreen(
 }
 
 @Composable
-fun UserProfileSection(usuario: Usuario, recetasCreadas: List<Receta>) {
+fun UserProfileSection(    usuario: Usuario,
+                           recetasCreadas: List<Receta>,
+                           navController: NavController,
+                           sessionViewModel: SessionViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,6 +82,19 @@ fun UserProfileSection(usuario: Usuario, recetasCreadas: List<Receta>) {
         ProfileHeader(usuario)
         RecipeStats(recetasCreadas)
         AboutSection(usuario)
+
+        Spacer(Modifier.weight(1f)) // empuja al fondo
+
+        EndSessionButton(
+            onConfirmLogout = {
+                sessionViewModel.logout()
+                navController.navigate(Screen.Splash.route) {
+                    popUpTo(0) { inclusive = true } // limpia todo el backstack
+                    launchSingleTop = true
+                }
+            }
+        )
+
     }
 }
 
@@ -150,4 +165,56 @@ fun InfoRow(icon: ImageVector, text: String) {
         Text(text)
     }
 }
+
+@Composable
+fun EndSessionButton(onConfirmLogout: () -> Unit) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    Column {
+        Divider(thickness = 1.dp, color = Color.Gray.copy(alpha = 0.3f))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDialog = true }
+                .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.ExitToApp,
+                contentDescription = "Cerrar sesión",
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Cerrar sesión",
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 16.sp
+            )
+        }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("¿Cerrar sesión?") },
+            text = { Text("¿Estás seguro que querés cerrar sesión?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                    onConfirmLogout()
+                }) {
+                    Text("Sí")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+}
+
 

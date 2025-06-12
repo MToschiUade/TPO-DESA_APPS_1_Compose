@@ -45,7 +45,7 @@ fun AppNavigation(
     sessionViewModel: SessionViewModel,
     usuarioLogueado: Usuario? // nuevo
 ) {
-    val usuarioLogueado by sessionViewModel.usuarioLogueado
+    //val usuarioLogueado by sessionViewModel.usuarioLogueado
 
     NavHost(
         navController = navController,

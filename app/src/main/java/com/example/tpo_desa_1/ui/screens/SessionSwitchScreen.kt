@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import androidx.compose.ui.graphics.Color
+import com.example.tpo_desa_1.navigation.Screen
 
 
 @Composable
@@ -72,8 +73,16 @@ fun SessionSwitchScreen(
 
                     Button(onClick = {
                         sessionViewModel.login(identificador, password) { success ->
-                            errorLogin = !success
+                            if (success) {
+                                errorLogin = false
+                                navController.navigate(Screen.Splash.route) {
+                                    popUpTo(Screen.SessionSwitch.route) { inclusive = true }
+                                }
+                            } else {
+                                errorLogin = true
+                            }
                         }
+
                     }) {
                         Text("Iniciar sesión")
                     }

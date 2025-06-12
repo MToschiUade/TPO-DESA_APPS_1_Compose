@@ -10,6 +10,16 @@ import kotlin.collections.listOf
 
 val demoRecetas = listOf(
     Receta(
+        nombre = "Milanesa demo",
+        puntaje = 4,
+        tiempo = 35,
+        estado = "rechazada",
+        fechaRevision = 1748008230,
+        imagenPortadaUrl = "https://breaders.com.ar/web/wp-content/uploads/2023/07/banner-ofertas-800x1000-1-800x675.jpg",
+        autor = "MelinaD"
+    ), // fecha de revisión 23/5/2025, 10:50:30
+
+    Receta(
         nombre = "Tacos demo",
         puntaje = 5,
         tiempo = 30,
@@ -108,4 +118,6 @@ val demoRecetas = listOf(
         imagenPortadaUrl = "https://breaders.com.ar/web/wp-content/uploads/2023/07/banner-ofertas-800x1000-1-800x675.jpg",
         autor = "IvanaC"
     ) // fecha de revisión 23/5/2025, 10:50:30
+
+
 )

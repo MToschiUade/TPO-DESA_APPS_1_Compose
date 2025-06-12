@@ -23,6 +23,10 @@ import com.example.tpo_desa_1.ui.screens.ProfileScreen
 import com.example.tpo_desa_1.ui.screens.RecetaDetailScreen
 import com.example.tpo_desa_1.ui.screens.SessionSwitchScreen
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.padding
+import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
+import com.example.tpo_desa_1.ui.screens.CrearRecetaScreen
 
 
 sealed class Screen(
@@ -60,8 +64,16 @@ fun AppNavigation(
         }
 
         composable(Screen.Recipes.route) {
-            if (usuarioLogueado != null) {
-                RecipesScreen(navController, sessionViewModel)
+            val usuario = sessionViewModel.usuarioLogueado.value
+
+            if (usuario != null) {
+                ScreenWithBottomBar(navController) { innerPadding ->
+                    RecipesScreen(
+                        navController = navController,
+                        sessionViewModel = sessionViewModel,
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             } else {
                 LaunchedEffect(Unit) {
                     navController.navigate(Screen.SessionSwitch.route) {
@@ -104,6 +116,10 @@ fun AppNavigation(
             recetaId?.let {
                 RecetaDetailScreen(recetaId = it, navController = navController)
             }
+        }
+
+        composable("crear_receta") {
+            CrearRecetaScreen(navController)
         }
     }
 }

@@ -25,8 +25,13 @@ import com.example.tpo_desa_1.ui.screens.SessionSwitchScreen
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import com.example.tpo_desa_1.data.db.AppDatabase
+import com.example.tpo_desa_1.repository.UsuarioRepository
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.ui.screens.CrearRecetaScreen
+import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
 
 
 sealed class Screen(
@@ -45,11 +50,18 @@ sealed class Screen(
 
 @Composable
 fun AppNavigation(
-    navController: NavHostController = rememberNavController(),
-    sessionViewModel: SessionViewModel,
-    usuarioLogueado: Usuario? // nuevo
+    navController: NavHostController = rememberNavController()
 ) {
-    //val usuarioLogueado by sessionViewModel.usuarioLogueado
+
+    val context = LocalContext.current
+    val usuarioDao = AppDatabase.getDatabase(context).usuarioDao()
+    val usuarioRepo = remember { UsuarioRepository(usuarioDao) }
+
+    val sessionViewModel: SessionViewModel = viewModel(
+        factory = SessionViewModelFactory(usuarioRepo)
+    )
+
+    val usuarioLogueado = sessionViewModel.usuarioLogueado.value
 
     NavHost(
         navController = navController,
@@ -114,7 +126,11 @@ fun AppNavigation(
         composable("detalle_receta/{recetaId}") { backStackEntry ->
             val recetaId = backStackEntry.arguments?.getString("recetaId")?.toIntOrNull()
             recetaId?.let {
-                RecetaDetailScreen(recetaId = it, navController = navController)
+                RecetaDetailScreen(
+                    recetaId = it,
+                    usuarioActual = usuarioLogueado?.alias, // puede ser null si no hay sesión
+                    navController = navController
+                )
             }
         }
 

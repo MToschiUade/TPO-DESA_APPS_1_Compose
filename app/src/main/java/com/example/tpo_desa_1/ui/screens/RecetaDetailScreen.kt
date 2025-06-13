@@ -9,10 +9,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.data.db.AppDatabase
+import com.example.tpo_desa_1.repository.DetallesRecetaRepository
 import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.viewmodel.RecetaViewModel
 import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
+import com.example.tpo_desa_1.viewmodel.DetallesRecetaViewModel
+import com.example.tpo_desa_1.viewmodel.DetallesRecetaViewModelFactory
 
 @Composable
 fun RecetaDetailScreen(recetaId: Int, navController: NavController) {
@@ -25,6 +28,18 @@ fun RecetaDetailScreen(recetaId: Int, navController: NavController) {
     )
 
     val receta by viewModel.obtenerPorId(recetaId)
+
+    val detallesRepository = remember {
+        DetallesRecetaRepository(
+            comentarioDao = AppDatabase.getDatabase(context).comentarioDao(),
+            pasoDao = AppDatabase.getDatabase(context).pasoRecetaDao()
+        )
+    }
+
+    val detallesViewModel: DetallesRecetaViewModel = viewModel(
+        factory = DetallesRecetaViewModelFactory(detallesRepository)
+    )
+
 
     ScreenWithBottomBar(navController = navController) { padding ->
         Column(

@@ -9,17 +9,26 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.tpo_desa_1.config.AppConfig
 import com.example.tpo_desa_1.data.demo.demoRecetas
 import com.example.tpo_desa_1.data.demo.demoUsuarios
+import com.example.tpo_desa_1.data.model.Comentario
+import com.example.tpo_desa_1.data.model.PasoReceta
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.model.Usuario
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Receta::class, Usuario::class], version = 8)
+@Database(    entities = [
+    Receta::class,
+    Usuario::class,
+    Comentario::class,
+    PasoReceta::class
+],version = 9)
 @TypeConverters(Converters::class) // ✅ IMPORTANTE
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recetaDao(): RecetaDao
     abstract fun usuarioDao(): UsuarioDao
+    abstract fun comentarioDao(): ComentarioDao
+    abstract fun pasoRecetaDao(): PasoRecetaDao
 
     companion object {
         @Volatile
@@ -52,6 +61,8 @@ abstract class AppDatabase : RoomDatabase() {
                 val db = getDatabase(context)
                 val recetaDao = db.recetaDao()
                 val usuarioDao = db.usuarioDao()
+                val comentarioDao = db.comentarioDao()
+                val pasoRecetaDao = db.pasoRecetaDao()
 
                 // Borra todo y recarga siempre que la demo esté habilitada
                 recetaDao.borrarTodas()

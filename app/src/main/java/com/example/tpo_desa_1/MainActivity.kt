@@ -33,7 +33,8 @@ class MainActivity : ComponentActivity() {
             ) {
                 //AppNavigation(sessionViewModel = sessionViewModel)
                 val usuarioLogueado by sessionViewModel.usuarioLogueado
-                AppNavigation(sessionViewModel = sessionViewModel, usuarioLogueado = usuarioLogueado)
+                //AppNavigation(sessionViewModel = sessionViewModel, usuarioLogueado = usuarioLogueado)
+                AppNavigation()
             }
         }
     }

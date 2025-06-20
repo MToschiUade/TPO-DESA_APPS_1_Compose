@@ -9,7 +9,7 @@ import androidx.room.Index
     indices = [Index(value = ["autor", "nombre"], unique = true)]
 )
 data class Receta(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0, // valor por defecto
+    @PrimaryKey val id: Int, // ya no se autogenera
     val nombre: String,
     val puntaje: Int,
     val tiempo: Int,
@@ -18,5 +18,6 @@ data class Receta(
     val imagenPortadaUrl: String,
     val autor: String
 )
+
 
 

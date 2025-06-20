@@ -10,6 +10,7 @@ import kotlin.collections.listOf
 
 val demoRecetas = listOf(
     Receta(
+        id = 1,
         nombre = "Milanesa demo",
         puntaje = 4,
         tiempo = 35,
@@ -20,6 +21,7 @@ val demoRecetas = listOf(
     ), // fecha de revisión 23/5/2025, 10:50:30
 
     Receta(
+        id = 2,
         nombre = "Tacos demo",
         puntaje = 5,
         tiempo = 30,
@@ -30,6 +32,7 @@ val demoRecetas = listOf(
     ), // fecha de revisión 28/5/2025, 10:40:30
 
     Receta(
+        id = 3,
         nombre = "Pasta demo",
         puntaje = 4,
         tiempo = 20,
@@ -40,6 +43,7 @@ val demoRecetas = listOf(
     ), // fecha de revisión 20/5/2025, 10:40:30
 
     Receta(
+        id = 4,
         nombre = "Pizza demo",
         puntaje = 3,
         tiempo = 25,
@@ -50,6 +54,7 @@ val demoRecetas = listOf(
     ), // fecha de revisión 23/5/2025, 10:55:30
 
     Receta(
+        id = 5,
         nombre = "Hamburguesa demo",
         puntaje = 5,
         tiempo = 15,
@@ -60,6 +65,7 @@ val demoRecetas = listOf(
     ),
 
     Receta(
+        id = 6,
         nombre = "Empanadas demo",
         puntaje = 4,
         tiempo = 40,
@@ -70,6 +76,7 @@ val demoRecetas = listOf(
     ), // fecha de revisión 21/5/2025, 10:40:30
 
     Receta(
+        id = 7,
         nombre = "Ceviche demo",
         puntaje = 4,
         tiempo = 50,
@@ -80,6 +87,7 @@ val demoRecetas = listOf(
     ),
 
     Receta(
+        id = 8,
         nombre = "Ramen demo",
         puntaje = 3,
         tiempo = 60,
@@ -90,6 +98,7 @@ val demoRecetas = listOf(
     ), // fecha de revisión 21/5/2025, 10:45:30
 
     Receta(
+        id = 9,
         nombre = "Sushi demo",
         puntaje = 5,
         tiempo = 45,
@@ -100,6 +109,7 @@ val demoRecetas = listOf(
     ), // fecha de revisión 22/5/2025, 10:45:30
 
     Receta(
+        id = 10,
         nombre = "Paella demo",
         puntaje = 5,
         tiempo = 90,
@@ -110,6 +120,7 @@ val demoRecetas = listOf(
     ), // fecha de revisión 23/5/2025, 10:45:30
 
     Receta(
+        id = 11,
         nombre = "Milanesa demo",
         puntaje = 4,
         tiempo = 35,

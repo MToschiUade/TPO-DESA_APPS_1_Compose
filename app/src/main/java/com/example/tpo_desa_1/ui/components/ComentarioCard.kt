@@ -49,15 +49,5 @@ fun ComentarioCard(
             }
         }
 
-        if (usuarioActual != null && comentario.autor == usuarioActual) {
-            IconButton(onClick = { onEliminar(comentario.id) }) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Eliminar comentario",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-
     }
 }

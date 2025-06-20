@@ -15,6 +15,7 @@ class DetallesRecetaRepository(
     suspend fun obtenerPasos(recetaId: Int): List<PasoReceta> =
         pasoDao.obtenerPorReceta(recetaId)
 
-    suspend fun eliminarComentarioSiAutor(id: Int, autor: String): Boolean =
-        comentarioDao.eliminarSiEsDelAutor(id, autor) > 0
+    suspend fun eliminarComentarioSiAutor(recetaId: Int, autor: String, fecha: Long): Boolean =
+        comentarioDao.eliminarSiEsDelAutor(recetaId, autor) > 0
+
 }

@@ -1,5 +1,7 @@
 package com.example.tpo_desa_1.ui.components
 
+// TODO Eliminar componente sin uso.
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth

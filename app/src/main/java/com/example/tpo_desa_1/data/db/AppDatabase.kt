@@ -7,6 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.tpo_desa_1.config.AppConfig
+import com.example.tpo_desa_1.data.demo.demoComentarios
+import com.example.tpo_desa_1.data.demo.demoPasos
 import com.example.tpo_desa_1.data.demo.demoRecetas
 import com.example.tpo_desa_1.data.demo.demoUsuarios
 import com.example.tpo_desa_1.data.model.Comentario
@@ -22,7 +24,7 @@ import kotlinx.coroutines.launch
     Usuario::class,
     Comentario::class,
     PasoReceta::class
-],version = 9)
+],version = 10)
 @TypeConverters(Converters::class) // ✅ IMPORTANTE
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recetaDao(): RecetaDao
@@ -64,15 +66,22 @@ abstract class AppDatabase : RoomDatabase() {
                 val comentarioDao = db.comentarioDao()
                 val pasoRecetaDao = db.pasoRecetaDao()
 
-                // Borra todo y recarga siempre que la demo esté habilitada
-                recetaDao.borrarTodas()
+                // Insertar usuarios demo (evita duplicados)
                 demoUsuarios.forEach { usuario ->
                     val existe = usuarioDao.obtenerPorAlias(usuario.alias)
                     if (existe == null) {
                         usuarioDao.insertar(usuario)
                     }
                 }
+
+                recetaDao.borrarTodas()
                 recetaDao.insertarTodas(demoRecetas)
+
+                comentarioDao.borrarTodos()
+                comentarioDao.insertarTodos(demoComentarios)
+
+                pasoRecetaDao.borrarTodos()
+                pasoRecetaDao.insertarTodos(demoPasos)
             }
         }
     }

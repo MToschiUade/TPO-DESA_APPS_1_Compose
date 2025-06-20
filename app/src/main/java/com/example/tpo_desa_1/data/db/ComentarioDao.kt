@@ -15,6 +15,13 @@ interface ComentarioDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(comentarios: List<Comentario>)
 
-    @Query("DELETE FROM comentarios WHERE id = :comentarioId AND autor = :autor")
-    suspend fun eliminarSiEsDelAutor(comentarioId: Int, autor: String): Int
+    @Query("DELETE FROM comentarios WHERE recetaId = :recetaId AND autor = :autor")
+    suspend fun eliminarSiEsDelAutor(recetaId: Int, autor: String): Int
+
+    @Insert
+    suspend fun insertarTodos(comentarios: List<Comentario>)
+
+    @Query("DELETE FROM comentarios")
+    suspend fun borrarTodos()
+
 }

@@ -14,4 +14,11 @@ interface PasoRecetaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(pasos: List<PasoReceta>)
+
+    @Insert
+    suspend fun insertarTodos(pasos: List<PasoReceta>)
+
+    @Query("DELETE FROM pasos_receta")
+    suspend fun borrarTodos()
+
 }

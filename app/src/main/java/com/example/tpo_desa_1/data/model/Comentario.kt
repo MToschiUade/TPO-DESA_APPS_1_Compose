@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "comentarios",
+    primaryKeys = ["recetaId", "autor"], // ❗ solo uno por receta y autor
     foreignKeys = [
         ForeignKey(
             entity = Receta::class,
@@ -17,13 +18,12 @@ import androidx.room.PrimaryKey
     ],
     indices = [Index(value = ["recetaId"])]
 )
-
 data class Comentario(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val recetaId: Int,
     val autor: String,
     val contenido: String,
     val estado: String, // "pendiente", "aprobado", "rechazado"
-    val fecha: Long,
-    val fechaRevision: Long? = null
+    val fecha: Long, // puede mantenerse como metadata
+    val fechaRevision: Long? = null,
+    val puntaje: Int? = null
 )

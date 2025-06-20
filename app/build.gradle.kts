@@ -72,6 +72,17 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.5.0") // versión estable actual
 
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    // Gson converter para JSON
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // OkHttp (si no lo tenés, para peticiones HTTP y multipart)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

@@ -46,6 +46,8 @@ dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.05.00")
     implementation(composeBom)
 
+    implementation("com.google.accompanist:accompanist-flowlayout:0.31.3-beta")
+
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
 

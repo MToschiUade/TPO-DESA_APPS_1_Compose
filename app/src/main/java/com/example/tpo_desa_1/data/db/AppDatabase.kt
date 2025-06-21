@@ -14,6 +14,7 @@ import com.example.tpo_desa_1.data.demo.demoUsuarios
 import com.example.tpo_desa_1.data.model.Comentario
 import com.example.tpo_desa_1.data.model.PasoReceta
 import com.example.tpo_desa_1.data.model.Receta
+import com.example.tpo_desa_1.data.model.RecetaGuardada
 import com.example.tpo_desa_1.data.model.Usuario
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,15 +24,16 @@ import kotlinx.coroutines.launch
     Receta::class,
     Usuario::class,
     Comentario::class,
-    PasoReceta::class
-],version = 10)
+    PasoReceta::class ,
+    RecetaGuardada::class
+],version = 11)
 @TypeConverters(Converters::class) // ✅ IMPORTANTE
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recetaDao(): RecetaDao
     abstract fun usuarioDao(): UsuarioDao
     abstract fun comentarioDao(): ComentarioDao
     abstract fun pasoRecetaDao(): PasoRecetaDao
-
+    abstract fun recetaGuardadaDao(): RecetaGuardadaDao
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null

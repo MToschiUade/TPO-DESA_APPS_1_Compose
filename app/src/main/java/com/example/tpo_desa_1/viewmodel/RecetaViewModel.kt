@@ -2,14 +2,14 @@ package com.example.tpo_desa_1.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.State
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.repository.RecetaRepository
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.State
 
 class RecetaViewModel(
-    private val repository: RecetaRepository
+    private val recetaRepository: RecetaRepository
 ) : ViewModel() {
 
     private val _recetas = mutableStateOf<List<Receta>>(emptyList())
@@ -28,34 +28,33 @@ class RecetaViewModel(
 
     fun cargarRecetas() {
         viewModelScope.launch {
-            _recetas.value = repository.obtenerTodas()
+            _recetas.value = recetaRepository.obtenerTodas()
         }
     }
 
     fun cargarRecientesAprobadas() {
         viewModelScope.launch {
-            _recetasAprobadasRecientes.value = repository.obtenerRecetasAprobadasRecientes()
+            _recetasAprobadasRecientes.value = recetaRepository.obtenerRecetasAprobadasRecientes()
         }
     }
 
     fun cargarRecetasAprobadas() {
         viewModelScope.launch {
-            _recetasAprobadas.value = repository.obtenerTodasAprobadas()
+            _recetasAprobadas.value = recetaRepository.obtenerTodasAprobadas()
         }
     }
 
     fun obtenerPorId(id: Int): State<Receta?> {
         val recetaState = mutableStateOf<Receta?>(null)
         viewModelScope.launch {
-            recetaState.value = repository.obtenerPorId(id)
+            recetaState.value = recetaRepository.obtenerPorId(id)
         }
         return recetaState
     }
 
     fun cargarRecetasDelUsuario(alias: String) {
         viewModelScope.launch {
-            _recetasDelUsuario.value = repository.obtenerRecetasPorUsuario(alias)
+            _recetasDelUsuario.value = recetaRepository.obtenerRecetasPorUsuario(alias)
         }
     }
-
 }

@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
 
         val usuarioDao = AppDatabase.getDatabase(applicationContext).usuarioDao()
         val usuarioRepository = UsuarioRepository(usuarioDao)
-        val sessionViewModelFactory = SessionViewModelFactory(usuarioRepository)
+        val sessionViewModelFactory = SessionViewModelFactory(application, usuarioRepository)
         val sessionViewModel = ViewModelProvider(this, sessionViewModelFactory)[SessionViewModel::class.java]
 
         setContent {

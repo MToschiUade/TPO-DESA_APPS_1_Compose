@@ -13,15 +13,13 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tpo_desa_1.data.model.Usuario
 import com.example.tpo_desa_1.ui.screens.RecipesScreen
 import com.example.tpo_desa_1.ui.screens.SavedScreen
 import com.example.tpo_desa_1.ui.screens.ProfileScreen
 import com.example.tpo_desa_1.ui.screens.RecetaDetailScreen
-import com.example.tpo_desa_1.ui.screens.SessionSwitchScreen
+import com.example.tpo_desa_1.ui.screens.LoginSessionScreen
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
@@ -57,8 +55,9 @@ fun AppNavigation(
     val usuarioDao = AppDatabase.getDatabase(context).usuarioDao()
     val usuarioRepo = remember { UsuarioRepository(usuarioDao) }
 
+    val application = context.applicationContext as android.app.Application
     val sessionViewModel: SessionViewModel = viewModel(
-        factory = SessionViewModelFactory(usuarioRepo)
+        factory = SessionViewModelFactory(application, usuarioRepo)
     )
 
     val usuarioLogueado = sessionViewModel.usuarioLogueado.value
@@ -120,7 +119,7 @@ fun AppNavigation(
         }
 
         composable(Screen.SessionSwitch.route) {
-            SessionSwitchScreen(navController, sessionViewModel)
+            LoginSessionScreen(navController, sessionViewModel)
         }
 
         composable("detalle_receta/{recetaId}") { backStackEntry ->

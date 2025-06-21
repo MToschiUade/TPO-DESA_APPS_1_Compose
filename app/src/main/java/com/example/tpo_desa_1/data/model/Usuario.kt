@@ -7,6 +7,6 @@ import androidx.room.PrimaryKey
 data class Usuario(
     @PrimaryKey val email: String,
     val alias: String,
-    val password: String,
-    val recetasGuardadas: List<Int> = emptyList()
+    val password: String = ""
 )
+

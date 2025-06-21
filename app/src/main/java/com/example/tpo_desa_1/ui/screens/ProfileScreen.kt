@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.tpo_desa_1.data.db.AppDatabase
 import com.example.tpo_desa_1.navigation.Screen
-import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.viewmodel.ProfileViewModelFactory
 
 @Composable
@@ -42,9 +41,7 @@ fun ProfileScreen(
 ) {
     // ✅ INYECCIÓN MANUAL DEL VIEWMODEL CON FACTORY
     val context = LocalContext.current
-    val recetaDao = AppDatabase.getDatabase(context).recetaDao()
-    val recetaRepo = RecetaRepository(recetaDao)
-    val factory = ProfileViewModelFactory(recetaRepo)
+    val factory = ProfileViewModelFactory(context)
     val profileViewModel: ProfileViewModel = viewModel(factory = factory)
 
     // 📌 Obtener el usuario logueado

@@ -15,6 +15,8 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import android.util.Log
+
 
 class SessionViewModel(
     application: Application,
@@ -28,6 +30,9 @@ class SessionViewModel(
     val loginState: State<LoginResult> = _loginState
 
     private val apiService: ApiService = Retrofit.Builder()
+        .also {
+            Log.d("API-BASE", "Retrofit se construye con BASE_URL: ${AppConfig.BASE_URL}")
+        }
         .baseUrl(AppConfig.BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
@@ -50,6 +55,7 @@ class SessionViewModel(
     }
 
     private fun loginWithBackend(username: String, password: String, onResult: (Boolean) -> Unit) {
+        Log.d("LOGIN", "Intentando login con usuario: $username y BASE_URL: ${AppConfig.BASE_URL}")
         viewModelScope.launch {
             _loginState.value = LoginResult.Loading
             try {
@@ -66,6 +72,7 @@ class SessionViewModel(
                         _loginState.value = LoginResult.Error("Respuesta vacía")
                         onResult(false)
                     }
+                    Log.d("LOGIN", "Respuesta exitosa: ${body?.accessToken}")
                 } else {
                     _loginState.value = LoginResult.Error("Credenciales incorrectas")
                     onResult(false)
@@ -75,6 +82,7 @@ class SessionViewModel(
                 onResult(false)
             } catch (e: Exception) {
                 _loginState.value = LoginResult.Error("Error inesperado: ${e.message}")
+                Log.e("LOGIN", "Excepción: ${e.message}", e)
                 onResult(false)
             }
         }

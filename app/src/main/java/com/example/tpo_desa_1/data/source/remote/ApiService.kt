@@ -9,19 +9,32 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    @Multipart
-    @POST("image/upload")
-    suspend fun uploadImage(
-        @Part image: MultipartBody.Part
-    ): String
+    /*RECETAS*/
+
+    @GET("recipes")
+    suspend fun getRecetas(): List<RecetaDTO>
 
     @POST("recipes")
     suspend fun postReceta(
         @Body receta: RecetaDTO
     )
 
+    @Multipart
+    @POST("image/upload")
+    suspend fun uploadImage(
+        @Part image: MultipartBody.Part
+    ): String
+
+    /*LOGIN*/
+
     @POST("auth/authenticate")
     suspend fun loginUsuarioCloud(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    suspend fun getRecetaPorId(id: Int): RecetaDTO?
+    suspend fun getRecetasPorUsuario(alias: String): List<RecetaDTO>
+    suspend fun getRecetasAprobadasRecientes(): List<RecetaDTO>
+    suspend fun getRecetasAprobadas(): List<RecetaDTO>
+
 }

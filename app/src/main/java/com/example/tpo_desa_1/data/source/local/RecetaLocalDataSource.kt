@@ -6,11 +6,16 @@ import com.example.tpo_desa_1.data.model.Receta
 class RecetaLocalDataSource(
     private val recetaDao: RecetaDao
 ) {
+
     suspend fun obtenerTodas(): List<Receta> = recetaDao.obtenerTodas()
 
     suspend fun obtenerPorId(id: Int): Receta? = recetaDao.obtenerPorId(id)
 
     suspend fun insertar(receta: Receta) = recetaDao.insertar(receta)
+
+    suspend fun insertarTodas(recetas: List<Receta>) {
+        recetas.forEach { recetaDao.insertar(it) }
+    }
 
     suspend fun obtenerPorUsuario(alias: String): List<Receta> =
         recetaDao.obtenerRecetasPorUsuario(alias)
@@ -19,4 +24,7 @@ class RecetaLocalDataSource(
         recetaDao.obtenerRecientesAprobadas()
 
     suspend fun obtenerAprobadas(): List<Receta> = recetaDao.obtenerAprobadas()
+
+    suspend fun obtenerTodasDemo(): List<Receta> = recetaDao.obtenerDemo()
+
 }

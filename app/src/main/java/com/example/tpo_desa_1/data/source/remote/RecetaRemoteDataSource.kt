@@ -8,6 +8,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import com.example.tpo_desa_1.data.model.Receta
+import com.example.tpo_desa_1.data.mapper.toModel
 
 class RecetaRemoteDataSource(
     private val api: ApiService
@@ -29,9 +31,68 @@ class RecetaRemoteDataSource(
         api.uploadImage(imagePart)
     }
 
-    suspend fun enviarReceta(dto: RecetaDTO) = withContext(Dispatchers.IO) {
-        api.postReceta(dto)
+    suspend fun enviarReceta(dto: RecetaDTO): Boolean = withContext(Dispatchers.IO) {
+        return@withContext try {
+            api.postReceta(dto)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 
-    // Más adelante: funciones como obtenerRecetasDesdeApi() si tu backend lo permite.
+    suspend fun obtenerRecetas(): List<RecetaDTO> = withContext(Dispatchers.IO) {
+        return@withContext try {
+            api.getRecetas()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerTodas(): List<Receta> = withContext(Dispatchers.IO) {
+        try {
+            api.getRecetas().map { it.toModel() } // Necesitás el mapper DTO → Receta
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerPorId(id: Int): Receta? = withContext(Dispatchers.IO) {
+        try {
+            api.getRecetaPorId(id)?.toModel()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun obtenerPorUsuario(alias: String): List<Receta> = withContext(Dispatchers.IO) {
+        try {
+            api.getRecetasPorUsuario(alias).map { it.toModel() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerRecientesAprobadas(): List<Receta> = withContext(Dispatchers.IO) {
+        try {
+            api.getRecetasAprobadasRecientes().map { it.toModel() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerAprobadas(): List<Receta> = withContext(Dispatchers.IO) {
+        try {
+            api.getRecetasAprobadas().map { it.toModel() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
 }

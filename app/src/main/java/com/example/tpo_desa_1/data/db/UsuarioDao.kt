@@ -13,7 +13,13 @@ interface UsuarioDao {
     @Query("SELECT * FROM usuarios WHERE (alias = :identificador OR email = :identificador) AND password = :password")
     suspend fun login(identificador: String, password: String): Usuario?
 
-    @Query("SELECT * FROM usuarios WHERE alias = :alias LIMIT 1")
+    @Query("SELECT * FROM usuarios WHERE alias = :alias")
     suspend fun obtenerPorAlias(alias: String): Usuario?
+
+    @Update
+    suspend fun update(usuario: Usuario)
+
+
+
 
 }

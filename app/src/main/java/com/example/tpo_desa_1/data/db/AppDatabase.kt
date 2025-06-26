@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
     Usuario::class,
     Comentario::class,
     PasoReceta::class
-],version = 10)
+],version = 14)
 @TypeConverters(Converters::class) // ✅ IMPORTANTE
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recetaDao(): RecetaDao

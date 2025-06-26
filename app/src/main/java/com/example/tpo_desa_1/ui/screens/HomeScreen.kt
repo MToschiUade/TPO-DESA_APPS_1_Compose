@@ -19,6 +19,7 @@ import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.data.db.AppDatabase
 
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import com.example.tpo_desa_1.repository.UsuarioRepository
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
@@ -68,7 +69,15 @@ fun HomeScreen(navController: NavController) {
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(65.dp)
+                        .padding(bottom = 12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color(0xFF00A86B),
+                        focusedBorderColor = Color(0xFF00A86B),
+                        unfocusedContainerColor = Color(0xFFF8F8F8),
+                        focusedContainerColor = Color(0xFFFFFFFF)
+
+                    )
                 )
             }
 

@@ -8,5 +8,9 @@ data class Usuario(
     @PrimaryKey val email: String,
     val alias: String,
     val password: String,
-    val recetasGuardadas: List<Int> = emptyList()
+    val recetasGuardadas: List<Int> = emptyList(),
+    val pais: String,
+    val nombre: String,
+    val apellido: String,
+    val status: String
 )

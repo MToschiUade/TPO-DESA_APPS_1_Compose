@@ -10,6 +10,7 @@ import androidx.compose.runtime.State
 
 class RecetaViewModel(
     private val repository: RecetaRepository
+
 ) : ViewModel() {
 
     private val _recetas = mutableStateOf<List<Receta>>(emptyList())
@@ -21,6 +22,8 @@ class RecetaViewModel(
     val recetasAprobadasRecientes: State<List<Receta>> = _recetasAprobadasRecientes
     val recetasAprobadas: State<List<Receta>> = _recetasAprobadas
     val recetasDelUsuario: State<List<Receta>> = _recetasDelUsuario
+    private val _recetasGuardadas = mutableStateOf<List<Receta>>(emptyList())
+    val recetasGuardadas: State<List<Receta>> = _recetasGuardadas
 
     init {
         cargarRecetas()
@@ -58,4 +61,11 @@ class RecetaViewModel(
         }
     }
 
+    fun cargarRecetasGuardadas(ids: List<Int>) {
+        viewModelScope.launch {
+            _recetasGuardadas.value = repository.obtenerRecetasPorIds(ids)
+        }
+    }
 }
+
+

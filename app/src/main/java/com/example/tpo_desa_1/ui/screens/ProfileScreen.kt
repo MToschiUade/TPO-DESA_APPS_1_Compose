@@ -112,7 +112,7 @@ fun ProfileHeader(usuario: Usuario) {
         Spacer(Modifier.height(8.dp))
 
         Text(usuario.alias, style = MaterialTheme.typography.titleMedium)
-        Text("Chef Amateur", style = MaterialTheme.typography.bodySmall)
+
 
         Spacer(Modifier.height(8.dp))
 
@@ -122,6 +122,7 @@ fun ProfileHeader(usuario: Usuario) {
             Icon(Icons.Default.Email, contentDescription = "Email")
         }
     }
+    Spacer(Modifier.height(15.dp))
 }
 
 @Composable
@@ -142,18 +143,20 @@ fun RecipeStats(recetasCreadas: List<Receta>) {
             //Text("Recetas guardadas")
         //}
     }
+
 }
 
 @Composable
+
 fun AboutSection(usuario: Usuario) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("About", style = MaterialTheme.typography.titleMedium)
-        Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit...")
+        Text("Acerca de: ", style = MaterialTheme.typography.titleMedium)
 
-        InfoRow(Icons.Default.Place, "Argentina")
+        Spacer(Modifier.height(10.dp))
+        InfoRow(Icons.Default.Place, usuario.pais)
         InfoRow(Icons.Default.Email, usuario.email)
-        InfoRow(Icons.Default.Work, "UX Designer at Ratatouille")
-        InfoRow(Icons.Default.School, "Studying at UADE")
+        InfoRow(Icons.Default.Person, "${usuario.nombre} ${usuario.apellido}")
+        InfoRow(Icons.Default.Verified, "Cuenta ${usuario.status}")
     }
 }
 

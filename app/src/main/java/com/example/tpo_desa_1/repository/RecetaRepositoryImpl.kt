@@ -11,104 +11,60 @@ class RecetaRepositoryImpl(
     private val remoteDataSource: RecetaRemoteDataSource
 ) : RecetaRepository {
 
-    private val usarApi = AppConfig.USE_REMOTE_DATA_SOURCE
-
     override suspend fun obtenerTodas(): List<Receta> {
-        return when {
-            AppConfig.USE_REMOTE_DATA_SOURCE -> {
-                try {
-                    val recetasRemotas = remoteDataSource.obtenerTodas()
-                    if (!AppConfig.ENABLE_DEMO_SEEDING) {
-                        localDataSource.insertarTodas(recetasRemotas)
-                    }
-                    recetasRemotas
-                } catch (e: Exception) {
-                    // Si falla la API, y está la demo habilitada
-                    if (AppConfig.ENABLE_DEMO_SEEDING) {
-                        localDataSource.obtenerTodasDemo()
-                    } else {
-                        // fallback a la última data local persistida
-                        localDataSource.obtenerTodas()
-                    }
-                }
-            }
-
-            AppConfig.ENABLE_DEMO_SEEDING -> {
-                localDataSource.obtenerTodasDemo()
-            }
-
-            else -> {
-                localDataSource.obtenerTodas()
-            }
+        return try {
+            val recetasRemotas = remoteDataSource.obtenerTodas()
+            localDataSource.insertarTodas(recetasRemotas)
+            recetasRemotas
+        } catch (e: Exception) {
+            localDataSource.obtenerTodas()
         }
     }
 
-
-
     override suspend fun obtenerPorId(id: Int): Receta? {
-        return if (usarApi) {
-            try {
-                remoteDataSource.obtenerPorId(id) ?: localDataSource.obtenerPorId(id)
-            } catch (e: Exception) {
-                localDataSource.obtenerPorId(id)
-            }
-        } else {
+        return try {
+            remoteDataSource.obtenerPorId(id) ?: localDataSource.obtenerPorId(id)
+        } catch (e: Exception) {
             localDataSource.obtenerPorId(id)
         }
     }
 
     override suspend fun crearReceta(receta: Receta): Boolean {
         return try {
-            if (usarApi) {
-                remoteDataSource.enviarReceta(receta.toDto()) // ✔️ usando tu mapper
-            } else {
-                localDataSource.insertar(receta)
-                true
-            }
+            remoteDataSource.enviarReceta(receta.toDto())
         } catch (e: Exception) {
             false
         }
     }
 
     override suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta> {
-        return if (usarApi) {
-            try {
-                val recetas = remoteDataSource.obtenerPorUsuario(alias)
-                localDataSource.insertarTodas(recetas)
-                recetas
-            } catch (e: Exception) {
-                localDataSource.obtenerPorUsuario(alias)
-            }
-        } else {
+        return try {
+            val recetas = remoteDataSource.obtenerPorUsuario(alias)
+            localDataSource.insertarTodas(recetas)
+            recetas
+        } catch (e: Exception) {
             localDataSource.obtenerPorUsuario(alias)
         }
     }
 
     override suspend fun obtenerRecetasAprobadasRecientes(): List<Receta> {
-        return if (usarApi) {
-            try {
-                val recetas = remoteDataSource.obtenerRecientesAprobadas()
-                localDataSource.insertarTodas(recetas)
-                recetas
-            } catch (e: Exception) {
-                localDataSource.obtenerRecientesAprobadas()
-            }
-        } else {
+        return try {
+            val recetas = remoteDataSource.obtenerRecientesAprobadas()
+            localDataSource.insertarTodas(recetas)
+            recetas
+        } catch (e: Exception) {
             localDataSource.obtenerRecientesAprobadas()
         }
     }
 
     override suspend fun obtenerTodasAprobadas(): List<Receta> {
-        return if (usarApi) {
-            try {
-                val recetas = remoteDataSource.obtenerAprobadas()
-                localDataSource.insertarTodas(recetas)
-                recetas
-            } catch (e: Exception) {
-                localDataSource.obtenerAprobadas()
-            }
-        } else {
+        return try {
+            val recetas = remoteDataSource.obtenerAprobadas()
+            localDataSource.insertarTodas(recetas)
+            recetas
+        } catch (e: Exception) {
             localDataSource.obtenerAprobadas()
         }
     }
 }
+

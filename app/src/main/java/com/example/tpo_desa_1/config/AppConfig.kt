@@ -1,7 +1,6 @@
 package com.example.tpo_desa_1.config
 
 object AppConfig {
-    const val ENABLE_DEMO_SEEDING = true
     const val USE_REMOTE_DATA_SOURCE = true // 🔁 cambiar a true cuando quieras probar con la API
     const val ALLOW_API_FAILURE_CACHE = false // (opcional futuro) Si cacheamos los últimos datos de la API
 

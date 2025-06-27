@@ -24,7 +24,6 @@ class RecetaLocalDataSource(
         recetaDao.obtenerRecientesAprobadas()
 
     suspend fun obtenerAprobadas(): List<Receta> = recetaDao.obtenerAprobadas()
-
-    suspend fun obtenerTodasDemo(): List<Receta> = recetaDao.obtenerDemo()
-
 }
+
+

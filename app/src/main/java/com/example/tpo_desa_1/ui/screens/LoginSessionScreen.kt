@@ -23,6 +23,7 @@ import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.navigation.Screen
 import com.example.tpo_desa_1.viewmodel.LoginResult
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
+import androidx.compose.runtime.getValue
 
 @Composable
 fun LoginSessionScreen(
@@ -35,7 +36,9 @@ fun LoginSessionScreen(
     var errorLogin by remember { mutableStateOf(false) }
 
     val camposValidos = identificador.isNotBlank() && password.length >= 6
-    val loginState by sessionViewModel.loginState
+    val loginState by sessionViewModel
+        .loginState
+        .collectAsState(initial = LoginResult.Idle)
 
     // Navegar o mostrar errores en base al estado del login
     LaunchedEffect(loginState) {

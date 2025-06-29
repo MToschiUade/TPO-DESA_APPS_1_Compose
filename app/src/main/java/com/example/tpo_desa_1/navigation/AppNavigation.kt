@@ -3,7 +3,7 @@ package com.example.tpo_desa_1.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,14 +17,14 @@ import androidx.compose.material.icons.filled.*
 sealed class Screen(
     val route: String,
     val title: String? = null,
-    val icon: ImageVector? = null
+    val icon: androidx.compose.ui.graphics.vector.ImageVector? = null
 ) {
-    data object Splash : Screen("splash")
-    data object Home : Screen("home", "Inicio", Icons.Default.Home)
-    data object Recipes : Screen("recipes", "Recetas", Icons.Default.MenuBook)
-    data object Saved : Screen("saved", "Guardadas", Icons.Default.Bookmark)
-    data object Profile : Screen("profile", "Perfil", Icons.Default.Person)
-    data object SessionSwitch : Screen("session", "Sesión")
+    object Splash       : Screen("splash")
+    object Home         : Screen("home",     "Inicio",   Icons.Default.Home)
+    object Recipes      : Screen("recipes",  "Recetas",  Icons.Default.MenuBook)
+    object Saved        : Screen("saved",    "Guardadas",Icons.Default.Bookmark)
+    object Profile      : Screen("profile",  "Perfil",   Icons.Default.Person)
+    object SessionSwitch: Screen("session",  "Sesión")
 }
 
 @Composable
@@ -32,91 +32,84 @@ fun AppNavigation(
     sessionViewModel: SessionViewModel,
     navController: NavHostController = rememberNavController()
 ) {
-    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
-    val alias by sessionViewModel.alias.collectAsState(initial = null)
-
-    LaunchedEffect(isLoggedIn, alias) {
-        println("🔍 AppNavigation -> isLoggedIn: $isLoggedIn | alias: $alias")
-        if (!isLoggedIn || alias == null) {
-            navController.navigate(Screen.Splash.route) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-    }
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
     ) {
+        // 1) Siempre ciego → Home
         composable(Screen.Splash.route) {
             SplashScreen(navController)
         }
 
+        // 2) Home siempre accesible
         composable(Screen.Home.route) {
             HomeScreen(navController, sessionViewModel)
         }
 
+        // 3) Pantallas protegidas
         composable(Screen.Recipes.route) {
-            if (isLoggedIn && alias != null) {
-                ScreenWithBottomBar(navController) { innerPadding ->
+            RequireLogin(sessionViewModel, navController) {
+                ScreenWithBottomBar(navController) { inner ->
                     RecipesScreen(
                         navController = navController,
                         sessionViewModel = sessionViewModel,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(inner)
                     )
                 }
-            } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(Screen.SessionSwitch.route) {
-                        popUpTo(Screen.Recipes.route) { inclusive = true }
-                    }
-                }
             }
         }
-
         composable(Screen.Saved.route) {
-            if (isLoggedIn && alias != null) {
+            RequireLogin(sessionViewModel, navController) {
                 SavedScreen(navController, sessionViewModel)
-            } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(Screen.SessionSwitch.route) {
-                        popUpTo(Screen.Saved.route) { inclusive = true }
-                    }
-                }
             }
         }
-
         composable(Screen.Profile.route) {
-            if (isLoggedIn && alias != null) {
+            RequireLogin(sessionViewModel, navController) {
                 ProfileScreen(navController, sessionViewModel)
-            } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(Screen.SessionSwitch.route) {
-                        popUpTo(Screen.Profile.route) { inclusive = true }
-                    }
-                }
             }
         }
 
+        // 4) Login / registro
         composable(Screen.SessionSwitch.route) {
             LoginSessionScreen(navController, sessionViewModel)
         }
 
-        composable("detalle_receta/{recetaId}") { backStackEntry ->
-            val recetaId = backStackEntry.arguments?.getString("recetaId")?.toIntOrNull()
-            recetaId?.let {
-                RecetaDetailScreen(
-                    recetaId = it,
-                    usuarioActual = alias,
-                    navController = navController
-                )
+        // 5) Rutas libres
+        composable("detalle_receta/{recetaId}") { back ->
+            back.arguments?.getString("recetaId")?.toIntOrNull()?.let { id ->
+                RecetaDetailScreen(id, usuarioActual = null, navController)
             }
         }
-
         composable("crear_receta") {
             CrearRecetaScreen(navController)
         }
     }
-
 }
 
+@Composable
+fun RequireLogin(
+    sessionViewModel: SessionViewModel,
+    navController: NavController,
+    content: @Composable () -> Unit
+) {
+    // 1) Convertir Flow→State<T>
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
+    val alias      by sessionViewModel.alias     .collectAsState(initial = null)
+    // 2) Redirigir si NO hay sesión y no estamos en Login/Splash
+    val currentRoute = navController.currentBackStackEntry?.destination?.route
+    LaunchedEffect(isLoggedIn, alias, currentRoute) {
+        val needsLogin = !isLoggedIn || alias == null
+        val onAuthScreen = currentRoute == Screen.SessionSwitch.route
+                || currentRoute == Screen.Splash.route
+        if (needsLogin && !onAuthScreen) {
+            navController.navigate(Screen.SessionSwitch.route) {
+                popUpTo(Screen.Home.route)
+                launchSingleTop = true
+            }
+        }
+    }
+    // 3) Solo mostrar contenido si hay sesión
+    if (isLoggedIn && alias != null) {
+        content()
+    }
+}

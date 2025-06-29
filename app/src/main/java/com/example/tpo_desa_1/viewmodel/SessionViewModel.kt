@@ -1,13 +1,10 @@
 package com.example.tpo_desa_1.viewmodel
 
 import android.app.Application
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tpo_desa_1.repository.UsuarioRepository
-import com.example.tpo_desa_1.viewmodel.LoginResult
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class SessionViewModel(
@@ -15,14 +12,53 @@ class SessionViewModel(
     private val usuarioRepository: UsuarioRepository
 ) : AndroidViewModel(application) {
 
-    private val _loginState = mutableStateOf<LoginResult>(LoginResult.Idle)
-    val loginState: State<LoginResult> = _loginState
+    // Estado interno de login (cargando, éxito, error…)
+    private val _loginState = MutableStateFlow<LoginResult>(LoginResult.Idle)
+    val loginState: StateFlow<LoginResult> = _loginState.asStateFlow()
 
-    val isLoggedIn: Flow<Boolean> = usuarioRepository.isLoggedIn()
-    val accessToken: Flow<String?> = usuarioRepository.getAccessToken()
-    val alias: Flow<String?> = usuarioRepository.getAlias()
-    val email: Flow<String?> = usuarioRepository.getEmail()
+    // ❗ Exponemos el token persistido
+    val accessToken: StateFlow<String?> =
+        usuarioRepository
+            .getAccessToken()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                null
+            )
 
+    // ❗ Exponemos el estado de sesión (true si hay token no vacío)
+    val isLoggedIn: StateFlow<Boolean> =
+        usuarioRepository
+            .isLoggedIn()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                false
+            )
+
+    // ❗ Exponemos alias y email del usuario
+    val alias: StateFlow<String?> =
+        usuarioRepository
+            .getAlias()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                null
+            )
+
+    val email: StateFlow<String?> =
+        usuarioRepository
+            .getEmail()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                null
+            )
+
+    /**
+     * Ejecuta el login remoto y persiste datos en DataStore.
+     * Actualiza _loginState para reflejar loading/success/error.
+     */
     fun login(identificador: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             _loginState.value = LoginResult.Loading
@@ -32,11 +68,13 @@ class SessionViewModel(
         }
     }
 
+    /**
+     * Limpia sesión en repositorio (borra DataStore).
+     */
     fun logout() {
         viewModelScope.launch {
-            println("👋 Ejecutando logout desde SessionViewModel...")
+            println("👋 Ejecutando logout desde SessionViewModel…")
             usuarioRepository.logout()
         }
     }
-
 }

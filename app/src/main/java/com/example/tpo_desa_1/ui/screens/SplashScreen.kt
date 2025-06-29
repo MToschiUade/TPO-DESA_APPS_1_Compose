@@ -37,13 +37,13 @@ fun SplashScreen(navController: NavController) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(id = R.drawable.splash_logo), // Reemplazá si cambia
-                contentDescription = "Logo",
+                painter = painterResource(id = R.drawable.splash_logo),
+                contentDescription = null,
                 modifier = Modifier
                     .size(200.dp)
                     .clip(CircleShape)
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
             Text(
                 text = "Ratatouille",
                 fontSize = 32.sp,

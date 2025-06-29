@@ -9,32 +9,66 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    /*RECETAS*/
+    // ——————————————————————————————
+    //   RECETAS PÚBLICAS
+    // ——————————————————————————————
 
+    /** Devuelve todas las recetas (públicas) */
     @GET("recipes")
     suspend fun getRecetas(): List<RecetaDTO>
 
+    /** Devuelve la receta por su ID */
+    @GET("recipes/{id}")
+    suspend fun getRecetaPorId(
+        @Path("id") id: Int
+    ): RecetaDTO
+
+    // ——————————————————————————————
+    //   RECETAS DEL USUARIO
+    // ——————————————————————————————
+
+    /** Devuelve las recetas creadas por un usuario */
+    @GET("recipes/user/{alias}")
+    suspend fun getRecetasPorUsuario(
+        @Path("alias") alias: String
+    ): List<RecetaDTO>
+
+    // ——————————————————————————————
+    //   RECETAS APROBADAS
+    // ——————————————————————————————
+
+    /** Recetas aprobadas más recientes */
+    @GET("recipes/approved/recent")
+    suspend fun getRecetasAprobadasRecientes(): List<RecetaDTO>
+
+    /** Todas las recetas aprobadas */
+    @GET("recipes/approved")
+    suspend fun getRecetasAprobadas(): List<RecetaDTO>
+
+    // ——————————————————————————————
+    //   CREACIÓN / SUBIDA
+    // ——————————————————————————————
+
+    /** Crea una nueva receta (requiere auth) */
     @POST("recipes")
     suspend fun postReceta(
         @Body receta: RecetaDTO
     )
 
+    /** Sube una imagen al servidor (requiere auth) */
     @Multipart
     @POST("image/upload")
     suspend fun uploadImage(
         @Part image: MultipartBody.Part
     ): String
 
-    /*LOGIN*/
+    // ——————————————————————————————
+    //   AUTENTICACIÓN
+    // ——————————————————————————————
 
+    /** Login: devuelve tokens y datos de usuario */
     @POST("auth/authenticate")
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
-
-    suspend fun getRecetaPorId(id: Int): RecetaDTO?
-    suspend fun getRecetasPorUsuario(alias: String): List<RecetaDTO>
-    suspend fun getRecetasAprobadasRecientes(): List<RecetaDTO>
-    suspend fun getRecetasAprobadas(): List<RecetaDTO>
-
 }

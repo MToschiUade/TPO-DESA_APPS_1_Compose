@@ -32,13 +32,13 @@ fun RecipesScreen(
         factory = RecetaViewModelFactory(context)
     )
 
-    val usuario = sessionViewModel.usuarioLogueado.value
+    // ✅ Escuchamos alias de sesión
+    val alias by sessionViewModel.alias.collectAsState(initial = null)
     val recetas = recetaViewModel.recetasDelUsuario.value
 
-    LaunchedEffect(usuario) {
-        usuario?.let {
-            recetaViewModel.cargarRecetasDelUsuario(it.alias)
-        }
+    // ✅ Cargar recetas si alias cambia y no es null
+    LaunchedEffect(alias) {
+        alias?.let { recetaViewModel.cargarRecetasDelUsuario(it) }
     }
 
     Column(
@@ -57,9 +57,7 @@ fun RecipesScreen(
             Text("Mis Recetas", style = MaterialTheme.typography.headlineSmall)
 
             IconButton(
-                onClick = {
-                    navController.navigate("crear_receta")
-                },
+                onClick = { navController.navigate("crear_receta") },
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(50))
@@ -74,9 +72,9 @@ fun RecipesScreen(
             }
         }
 
-        // Contenido de la pantalla
+        // Contenido
         when {
-            usuario == null -> {
+            alias == null -> {
                 Text("Iniciá sesión para ver tus recetas.")
             }
 
@@ -96,3 +94,4 @@ fun RecipesScreen(
         }
     }
 }
+

@@ -1,36 +1,18 @@
 package com.example.tpo_desa_1.navigation
 
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.tpo_desa_1.ui.screens.SplashScreen
-import com.example.tpo_desa_1.ui.screens.HomeScreen
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tpo_desa_1.ui.screens.RecipesScreen
-import com.example.tpo_desa_1.ui.screens.SavedScreen
-import com.example.tpo_desa_1.ui.screens.ProfileScreen
-import com.example.tpo_desa_1.ui.screens.RecetaDetailScreen
-import com.example.tpo_desa_1.ui.screens.LoginSessionScreen
-import com.example.tpo_desa_1.viewmodel.SessionViewModel
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import com.example.tpo_desa_1.data.db.AppDatabase
-import com.example.tpo_desa_1.repository.UsuarioRepository
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
-import com.example.tpo_desa_1.ui.screens.CrearRecetaScreen
-import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
-
+import com.example.tpo_desa_1.ui.screens.*
+import com.example.tpo_desa_1.viewmodel.SessionViewModel
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 
 sealed class Screen(
     val route: String,
@@ -42,26 +24,26 @@ sealed class Screen(
     data object Recipes : Screen("recipes", "Recetas", Icons.Default.MenuBook)
     data object Saved : Screen("saved", "Guardadas", Icons.Default.Bookmark)
     data object Profile : Screen("profile", "Perfil", Icons.Default.Person)
-    data object SessionSwitch : Screen("session", "Sesión", null)
-
+    data object SessionSwitch : Screen("session", "Sesión")
 }
 
 @Composable
 fun AppNavigation(
+    sessionViewModel: SessionViewModel,
     navController: NavHostController = rememberNavController()
 ) {
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
+    val alias by sessionViewModel.alias.collectAsState(initial = null)
 
-    val context = LocalContext.current
-    val usuarioDao = AppDatabase.getDatabase(context).usuarioDao()
-    val usuarioRepo = remember { UsuarioRepository(usuarioDao) }
-
-    val application = context.applicationContext as android.app.Application
-    val sessionViewModel: SessionViewModel = viewModel(
-        factory = SessionViewModelFactory(application, usuarioRepo)
-    )
-
-    val usuarioLogueado = sessionViewModel.usuarioLogueado.value
-
+    LaunchedEffect(isLoggedIn, alias) {
+        println("🔍 AppNavigation -> isLoggedIn: $isLoggedIn | alias: $alias")
+        if (!isLoggedIn || alias == null) {
+            navController.navigate(Screen.Splash.route) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
@@ -71,13 +53,11 @@ fun AppNavigation(
         }
 
         composable(Screen.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(navController, sessionViewModel)
         }
 
         composable(Screen.Recipes.route) {
-            val usuario = sessionViewModel.usuarioLogueado.value
-
-            if (usuario != null) {
+            if (isLoggedIn && alias != null) {
                 ScreenWithBottomBar(navController) { innerPadding ->
                     RecipesScreen(
                         navController = navController,
@@ -95,7 +75,7 @@ fun AppNavigation(
         }
 
         composable(Screen.Saved.route) {
-            if (usuarioLogueado != null) {
+            if (isLoggedIn && alias != null) {
                 SavedScreen(navController, sessionViewModel)
             } else {
                 LaunchedEffect(Unit) {
@@ -107,7 +87,7 @@ fun AppNavigation(
         }
 
         composable(Screen.Profile.route) {
-            if (usuarioLogueado != null) {
+            if (isLoggedIn && alias != null) {
                 ProfileScreen(navController, sessionViewModel)
             } else {
                 LaunchedEffect(Unit) {
@@ -127,7 +107,7 @@ fun AppNavigation(
             recetaId?.let {
                 RecetaDetailScreen(
                     recetaId = it,
-                    usuarioActual = usuarioLogueado?.alias, // puede ser null si no hay sesión
+                    usuarioActual = alias,
                     navController = navController
                 )
             }
@@ -137,4 +117,6 @@ fun AppNavigation(
             CrearRecetaScreen(navController)
         }
     }
+
 }
+

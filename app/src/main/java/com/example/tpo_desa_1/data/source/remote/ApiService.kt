@@ -28,7 +28,7 @@ interface ApiService {
     /*LOGIN*/
 
     @POST("auth/authenticate")
-    suspend fun loginUsuarioCloud(
+    suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
 

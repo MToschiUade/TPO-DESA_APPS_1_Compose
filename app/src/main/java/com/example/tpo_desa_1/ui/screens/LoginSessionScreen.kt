@@ -7,28 +7,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.navigation.Screen
-
+import com.example.tpo_desa_1.viewmodel.LoginResult
+import com.example.tpo_desa_1.viewmodel.SessionViewModel
 
 @Composable
 fun LoginSessionScreen(
@@ -37,21 +31,39 @@ fun LoginSessionScreen(
 ) {
     var identificador by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorLogin by remember { mutableStateOf(false) }
     var showPassword by remember { mutableStateOf(false) }
+    var errorLogin by remember { mutableStateOf(false) }
 
     val camposValidos = identificador.isNotBlank() && password.length >= 6
+    val loginState by sessionViewModel.loginState
+
+    // Navegar o mostrar errores en base al estado del login
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is LoginResult.Success -> {
+                errorLogin = false
+                navController.navigate(Screen.Splash.route) {
+                    popUpTo(Screen.SessionSwitch.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+
+            is LoginResult.Error -> {
+                errorLogin = true
+            }
+
+            else -> Unit
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // 🔺 Botón de cerrar (ir a Home)
+        // Botón cerrar
         IconButton(
-            onClick = {
-                navController.popBackStack()
-            },
+            onClick = { navController.popBackStack() },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
@@ -59,11 +71,7 @@ fun LoginSessionScreen(
                     end = 16.dp
                 )
         ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Cerrar",
-                tint = Color.Black
-            )
+            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Black)
         }
 
         Column(
@@ -82,11 +90,8 @@ fun LoginSessionScreen(
             )
 
             Text("Ratatouille", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-
             Spacer(modifier = Modifier.height(24.dp))
-
             Text("Inicia sesión en tu cuenta", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedTextField(
@@ -121,7 +126,7 @@ fun LoginSessionScreen(
                 trailingIcon = {
                     val icon = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { showPassword = !showPassword }) {
-                        Icon(imageVector = icon, contentDescription = null)
+                        Icon(icon, contentDescription = null)
                     }
                 },
                 singleLine = true,
@@ -132,20 +137,10 @@ fun LoginSessionScreen(
 
             Button(
                 onClick = {
-                    sessionViewModel.login(identificador, password) { success ->
-                        if (success) {
-                            errorLogin = false
-                            navController.navigate(Screen.Splash.route) {
-                                popUpTo(Screen.SessionSwitch.route) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        } else {
-                            errorLogin = true
-                        }
-                    }
-
+                    errorLogin = false
+                    sessionViewModel.login(identificador, password) {}
                 },
-                enabled = camposValidos,
+                enabled = camposValidos && loginState !is LoginResult.Loading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -153,7 +148,15 @@ fun LoginSessionScreen(
                     disabledContainerColor = Color.LightGray
                 )
             ) {
-                Text("Ingresar")
+                if (loginState is LoginResult.Loading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else {
+                    Text("Ingresar")
+                }
             }
 
             if (errorLogin) {
@@ -163,4 +166,3 @@ fun LoginSessionScreen(
         }
     }
 }
-

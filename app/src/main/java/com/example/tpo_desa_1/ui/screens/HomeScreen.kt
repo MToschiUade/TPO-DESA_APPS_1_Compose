@@ -24,8 +24,10 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
 
 
 @Composable
-fun HomeScreen(navController: NavController) {
-    
+fun HomeScreen(
+    navController: NavController,
+    sessionViewModel: SessionViewModel
+) {
     val context = LocalContext.current
     val viewModel: RecetaViewModel = viewModel(
         factory = RecetaViewModelFactory(context)
@@ -38,17 +40,6 @@ fun HomeScreen(navController: NavController) {
         viewModel.cargarRecientesAprobadas()
         viewModel.cargarRecetasAprobadas()
     }
-
-    // Usuario ---
-    val usuarioDao = AppDatabase.getDatabase(context).usuarioDao()
-    val usuarioRepository = remember { UsuarioRepository(usuarioDao) }
-    val application = context.applicationContext as android.app.Application
-    val sessionViewModel: SessionViewModel = viewModel(
-        factory = SessionViewModelFactory(application, usuarioRepository)
-    )
-
-
-    // --- Usuario
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -86,7 +77,6 @@ fun HomeScreen(navController: NavController) {
                 modifier = Modifier.weight(1f),
                 navController = navController
             )
-
         }
     }
 }

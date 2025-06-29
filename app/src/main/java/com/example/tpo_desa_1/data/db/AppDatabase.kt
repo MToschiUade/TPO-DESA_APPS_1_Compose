@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 @Database(
     entities = [
         Receta::class,
-        Usuario::class,
         Comentario::class,
         PasoReceta::class,
         RecetaGuardada::class
@@ -24,7 +23,6 @@ import kotlinx.coroutines.launch
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun recetaDao(): RecetaDao
-    abstract fun usuarioDao(): UsuarioDao
     abstract fun comentarioDao(): ComentarioDao
     abstract fun pasoRecetaDao(): PasoRecetaDao
     abstract fun recetaGuardadaDao(): RecetaGuardadaDao

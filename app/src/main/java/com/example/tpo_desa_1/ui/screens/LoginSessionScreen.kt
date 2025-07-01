@@ -64,9 +64,13 @@ fun LoginSessionScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
+        // Botón cerrar SIEMPRE te saca a Home y limpia stack
         IconButton(
             onClick = {
-                navController.popBackStack(Screen.Home.route, false)
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
             },
             modifier = Modifier
                 .align(Alignment.TopEnd)

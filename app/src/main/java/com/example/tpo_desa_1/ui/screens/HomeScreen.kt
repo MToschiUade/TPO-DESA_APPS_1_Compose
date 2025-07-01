@@ -15,7 +15,6 @@ import com.example.tpo_desa_1.ui.components.RecommendationCarousel
 import com.example.tpo_desa_1.ui.components.RecipeListSection
 import com.example.tpo_desa_1.viewmodel.RecetaViewModel
 import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
-import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.data.db.AppDatabase
 
 import androidx.compose.runtime.getValue
@@ -25,34 +24,32 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
 
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    sessionViewModel: SessionViewModel
+) {
     val context = LocalContext.current
-    val recetaDao = AppDatabase.getDatabase(context).recetaDao()
-    val repository = remember { RecetaRepository(recetaDao) }
-
     val viewModel: RecetaViewModel = viewModel(
-        factory = RecetaViewModelFactory(repository)
+        factory = RecetaViewModelFactory(context)
     )
+
     val recetasAprobadasRecientes by viewModel.recetasAprobadasRecientes
     val recetasAprobadas by viewModel.recetasAprobadas
+
+    // ✅ Observamos si el usuario está logueado
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
 
     LaunchedEffect(Unit) {
         viewModel.cargarRecientesAprobadas()
         viewModel.cargarRecetasAprobadas()
     }
 
-    // Usuario ---
-    val usuarioDao = AppDatabase.getDatabase(context).usuarioDao()
-    val usuarioRepository = remember { UsuarioRepository(usuarioDao) }
-    val sessionViewModel: SessionViewModel = viewModel(
-        factory = SessionViewModelFactory(usuarioRepository)
-    )
-
-    // --- Usuario
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavBar(navController) },
+        bottomBar = {
+            // ✅ Pasamos el estado a la BottomNavBar
+            BottomNavBar(navController = navController, isLoggedIn = isLoggedIn)
+        },
         contentWindowInsets = WindowInsets.systemBars
     ) { innerPadding ->
         Column(
@@ -86,7 +83,6 @@ fun HomeScreen(navController: NavController) {
                 modifier = Modifier.weight(1f),
                 navController = navController
             )
-
         }
     }
 }

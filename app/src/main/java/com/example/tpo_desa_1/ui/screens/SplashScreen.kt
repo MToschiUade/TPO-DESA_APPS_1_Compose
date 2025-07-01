@@ -19,11 +19,15 @@ import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.navigation.Screen
 import kotlinx.coroutines.delay
 import androidx.compose.material3.Text
+import com.example.tpo_desa_1.viewmodel.SessionViewModel
+import androidx.compose.runtime.*
 
 @Composable
-fun SplashScreen(navController: NavController) {
-    LaunchedEffect(Unit) {
-        delay(2000)
+fun SplashScreen(navController: NavController, sessionViewModel: SessionViewModel) {
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
+
+    LaunchedEffect(isLoggedIn) {
+        delay(1000)
         navController.navigate(Screen.Home.route) {
             popUpTo(Screen.Splash.route) { inclusive = true }
         }
@@ -37,13 +41,13 @@ fun SplashScreen(navController: NavController) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(id = R.drawable.splash_logo), // Reemplazá si cambia
-                contentDescription = "Logo",
+                painter = painterResource(id = R.drawable.splash_logo),
+                contentDescription = null,
                 modifier = Modifier
                     .size(200.dp)
                     .clip(CircleShape)
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
             Text(
                 text = "Ratatouille",
                 fontSize = 32.sp,

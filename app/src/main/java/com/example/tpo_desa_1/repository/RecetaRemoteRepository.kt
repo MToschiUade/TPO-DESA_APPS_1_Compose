@@ -3,6 +3,7 @@ package com.example.tpo_desa_1.repository
 import android.content.Context
 import android.net.Uri
 import com.example.tpo_desa_1.data.model.*
+import com.example.tpo_desa_1.data.source.remote.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

@@ -13,7 +13,7 @@ class UsuarioRepository(
     suspend fun login(identificador: String, password: String): Boolean {
         val isEmail = identificador.contains("@") && identificador.contains(".")
         val alias = if (isEmail) {
-            // 🔒 Por ahora el BE no acepta login por email
+            // 🔒 El backend aún no soporta login por email
             return false
         } else identificador
 
@@ -27,24 +27,27 @@ class UsuarioRepository(
                     accessToken = data.accessToken,
                     refreshToken = data.token
                 )
+                println("✅ Login exitoso: token guardado")
                 true
             } else {
+                println("❌ Error login: código HTTP ${response.code()}")
                 false
             }
         } catch (e: Exception) {
+            println("💥 Excepción en login: ${e.message}")
             false
         }
     }
 
     suspend fun logout() {
-        println("🧹 Limpiando UserPreferences...")
+        println("👋 Cerrando sesión y limpiando preferencias")
         userPreferences.clear()
     }
 
-
-    fun isLoggedIn(): Flow<Boolean> = userPreferences.isLoggedIn
-    fun getAccessToken(): Flow<String?> = userPreferences.accessTokenFlow
-    fun getRefreshToken(): Flow<String?> = userPreferences.refreshTokenFlow
-    fun getAlias(): Flow<String?> = userPreferences.aliasFlow
-    fun getEmail(): Flow<String?> = userPreferences.emailFlow
+    // Exponer flujos que consume SessionViewModel
+    fun isLoggedIn(): Flow<Boolean> = userPreferences.isLoggedIn()
+    fun getAccessToken(): Flow<String?> = userPreferences.getAccessToken()
+    fun getRefreshToken(): Flow<String?> = userPreferences.getRefreshToken()
+    fun getAlias(): Flow<String?> = userPreferences.getAlias()
+    fun getEmail(): Flow<String?> = userPreferences.getEmail()
 }

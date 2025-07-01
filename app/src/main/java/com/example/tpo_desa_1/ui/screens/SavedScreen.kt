@@ -9,18 +9,20 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
+import androidx.compose.runtime.*
+
 
 @Composable
 fun SavedScreen(
     navController: NavController,
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
+    modifier: Modifier = Modifier
 ) {
-    val isLoggedInState = sessionViewModel.isLoggedIn.collectAsState(initial = false)
-    val isLoggedIn = isLoggedInState.value
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
 
-    ScreenWithBottomBar(navController = navController) { innerPadding ->
+    ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
@@ -32,5 +34,5 @@ fun SavedScreen(
             }
         }
     }
-
 }
+

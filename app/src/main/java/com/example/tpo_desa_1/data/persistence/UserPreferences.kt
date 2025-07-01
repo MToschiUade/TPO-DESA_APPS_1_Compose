@@ -7,11 +7,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+// Usamos extension global para evitar instancias separadas
 private val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
-class UserPreferences(context: Context) {
-
-    private val appContext = context.applicationContext
+class UserPreferences(private val context: Context) {
 
     companion object {
         val ACCESS_TOKEN = stringPreferencesKey("access_token")
@@ -21,7 +20,7 @@ class UserPreferences(context: Context) {
     }
 
     suspend fun saveLoginData(alias: String, email: String, accessToken: String, refreshToken: String) {
-        appContext.dataStore.edit { prefs ->
+        context.dataStore.edit { prefs ->
             prefs[ACCESS_TOKEN] = accessToken
             prefs[REFRESH_TOKEN] = refreshToken
             prefs[ALIAS] = alias
@@ -30,15 +29,24 @@ class UserPreferences(context: Context) {
     }
 
     suspend fun clear() {
-        appContext.dataStore.edit { it.clear() }
-        println("🧼 Preferences limpiadas desde UserPreferences.clear()")
+        context.dataStore.edit { it.clear() }
+        println("🧼 Preferences limpiadas correctamente")
     }
 
+    // Exponer flujos reactivos para SessionViewModel
+    fun getAccessToken(): Flow<String?> =
+        context.dataStore.data.map { prefs -> prefs[ACCESS_TOKEN] }
 
-    val accessTokenFlow: Flow<String?> = appContext.dataStore.data.map { it[ACCESS_TOKEN] }
-    val refreshTokenFlow: Flow<String?> = appContext.dataStore.data.map { it[REFRESH_TOKEN] }
-    val aliasFlow: Flow<String?> = appContext.dataStore.data.map { it[ALIAS] }
-    val emailFlow: Flow<String?> = appContext.dataStore.data.map { it[EMAIL] }
+    fun getRefreshToken(): Flow<String?> =
+        context.dataStore.data.map { prefs -> prefs[REFRESH_TOKEN] }
 
-    val isLoggedIn: Flow<Boolean> = accessTokenFlow.map { !it.isNullOrBlank() }
+    fun getAlias(): Flow<String?> =
+        context.dataStore.data.map { prefs -> prefs[ALIAS] }
+
+    fun getEmail(): Flow<String?> =
+        context.dataStore.data.map { prefs -> prefs[EMAIL] }
+
+    fun isLoggedIn(): Flow<Boolean> =
+        getAccessToken().map { !it.isNullOrBlank() }
 }
+

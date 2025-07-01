@@ -36,22 +36,22 @@ fun LoginSessionScreen(
     var errorLogin by remember { mutableStateOf(false) }
 
     val camposValidos = identificador.isNotBlank() && password.length >= 6
-    val loginState by sessionViewModel
-        .loginState
-        .collectAsState(initial = LoginResult.Idle)
+    val loginState by sessionViewModel.loginState.collectAsState()
 
     // Navegar o mostrar errores en base al estado del login
     LaunchedEffect(loginState) {
         when (loginState) {
             is LoginResult.Success -> {
                 errorLogin = false
+                println("✅ Login exitoso, redirigiendo al Splash")
                 navController.navigate(Screen.Splash.route) {
-                    popUpTo(Screen.SessionSwitch.route) { inclusive = true }
+                    popUpTo(0) { inclusive = true } // Elimina todo el back stack
                     launchSingleTop = true
                 }
             }
 
             is LoginResult.Error -> {
+                println("❌ Login fallido: ${(loginState as LoginResult.Error).message}")
                 errorLogin = true
             }
 
@@ -64,9 +64,10 @@ fun LoginSessionScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Botón cerrar
         IconButton(
-            onClick = { navController.popBackStack() },
+            onClick = {
+                navController.popBackStack(Screen.Home.route, false)
+            },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
@@ -124,7 +125,7 @@ fun LoginSessionScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("6+ characters") },
+                placeholder = { Text("6+ caracteres") },
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility
@@ -141,6 +142,7 @@ fun LoginSessionScreen(
             Button(
                 onClick = {
                     errorLogin = false
+                    println("🚀 Intentando login con $identificador")
                     sessionViewModel.login(identificador, password) {}
                 },
                 enabled = camposValidos && loginState !is LoginResult.Loading,

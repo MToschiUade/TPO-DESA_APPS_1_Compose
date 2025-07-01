@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.ui.components.RecipeListSection
+import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.viewmodel.RecetaViewModel
 import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
@@ -32,66 +33,69 @@ fun RecipesScreen(
         factory = RecetaViewModelFactory(context)
     )
 
-    // ✅ Escuchamos alias de sesión
     val alias by sessionViewModel.alias.collectAsState(initial = null)
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
     val recetas = recetaViewModel.recetasDelUsuario.value
 
-    // ✅ Cargar recetas si alias cambia y no es null
     LaunchedEffect(alias) {
         alias?.let { recetaViewModel.cargarRecetasDelUsuario(it) }
     }
 
+    ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Título + botón agregar receta
-        Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            Text("Mis Recetas", style = MaterialTheme.typography.headlineSmall)
-
-            IconButton(
-                onClick = { navController.navigate("crear_receta") },
+            // Título y botón
+            Row(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(50))
-                    .background(color = Color(0xFF00A86B))
-                    .shadow(2.dp, RoundedCornerShape(50))
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar receta",
-                    tint = Color.White
-                )
-            }
-        }
+                Text("Mis Recetas", style = MaterialTheme.typography.headlineSmall)
 
-        // Contenido
-        when {
-            alias == null -> {
-                Text("Iniciá sesión para ver tus recetas.")
+                IconButton(
+                    onClick = { navController.navigate("crear_receta") },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(color = Color(0xFF00A86B))
+                        .shadow(2.dp, RoundedCornerShape(50))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Agregar receta",
+                        tint = Color.White
+                    )
+                }
             }
 
-            recetas.isEmpty() -> {
-                Text("Todavía no tenés recetas creadas.")
-            }
+            // Contenido
+            when {
+                !isLoggedIn || alias == null -> {
+                    Text("Iniciá sesión para ver tus recetas.")
+                }
 
-            else -> {
-                RecipeListSection(
-                    recetas = recetas,
-                    titulo = "Tus recetas creadas",
-                    mostrarEstado = true,
-                    mostrarPuntaje = true,
-                    navController = navController
-                )
+                recetas.isEmpty() -> {
+                    Text("Todavía no tenés recetas creadas.")
+                }
+
+                else -> {
+                    RecipeListSection(
+                        recetas = recetas,
+                        titulo = "Tus recetas creadas",
+                        mostrarEstado = true,
+                        mostrarPuntaje = true,
+                        navController = navController
+                    )
+                }
             }
         }
     }
 }
+
 

@@ -90,7 +90,10 @@ fun RecetaDetailScreen(
         detallesViewModel.cargarDatos(recetaId)
     }
 
-    ScreenWithBottomBar(navController = navController) { padding ->
+    ScreenWithBottomBar(
+        navController = navController,
+        isLoggedIn = usuarioActual != null
+    ) { padding ->
         receta?.let { r ->
             LazyColumn(
                 modifier = Modifier

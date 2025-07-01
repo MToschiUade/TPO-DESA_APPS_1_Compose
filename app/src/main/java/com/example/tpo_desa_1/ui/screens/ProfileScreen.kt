@@ -29,35 +29,40 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModel
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val factory = ProfileViewModelFactory(context)
     val profileViewModel: ProfileViewModel = viewModel(factory = factory)
 
-    val isLoggedInState = sessionViewModel.isLoggedIn.collectAsState(initial = false)
-    val isLoggedIn = isLoggedInState.value
-
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
     val aliasState = sessionViewModel.alias.collectAsState(initial = null)
     val alias = aliasState.value
-
     val emailState = sessionViewModel.email.collectAsState(initial = null)
     val email = emailState.value
 
     val recetasCreadas by profileViewModel.recetasCreadas.collectAsState()
 
+    // Cargar recetas del usuario si hay alias
     LaunchedEffect(alias) {
         alias?.let { profileViewModel.cargarRecetasCreadas(it) }
     }
 
-    ScreenWithBottomBar(navController = navController) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+    ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
+        Box(modifier = modifier.padding(innerPadding)) {
             if (isLoggedIn && alias != null && email != null) {
-                Column {
-                    UserProfileSection(alias, email, recetasCreadas, navController, sessionViewModel)
-                }
+                UserProfileSection(
+                    alias = alias,
+                    email = email,
+                    recetasCreadas = recetasCreadas,
+                    navController = navController,
+                    sessionViewModel = sessionViewModel
+                )
             } else {
-                Text("Iniciá sesión para ver el perfil")
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Iniciá sesión para ver el perfil")
+                }
             }
         }
     }

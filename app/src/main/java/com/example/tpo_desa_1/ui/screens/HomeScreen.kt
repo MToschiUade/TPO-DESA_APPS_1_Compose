@@ -36,6 +36,9 @@ fun HomeScreen(
     val recetasAprobadasRecientes by viewModel.recetasAprobadasRecientes
     val recetasAprobadas by viewModel.recetasAprobadas
 
+    // ✅ Observamos si el usuario está logueado
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
+
     LaunchedEffect(Unit) {
         viewModel.cargarRecientesAprobadas()
         viewModel.cargarRecetasAprobadas()
@@ -43,7 +46,10 @@ fun HomeScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavBar(navController) },
+        bottomBar = {
+            // ✅ Pasamos el estado a la BottomNavBar
+            BottomNavBar(navController = navController, isLoggedIn = isLoggedIn)
+        },
         contentWindowInsets = WindowInsets.systemBars
     ) { innerPadding ->
         Column(

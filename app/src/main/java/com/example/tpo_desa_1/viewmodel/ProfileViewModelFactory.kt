@@ -20,8 +20,13 @@ class ProfileViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
 
-            val recetaDao = AppDatabase.getDatabase(context).recetaDao()
-            val localDataSource = RecetaLocalDataSource(recetaDao)
+            val db = AppDatabase.getDatabase(context)
+
+            val recetaLocalDataSource = RecetaLocalDataSource(
+                recetaDao = db.recetaDao(),
+                pasoDao = db.pasoRecetaDao(),
+                ingredienteDao = db.ingredienteDao()
+            )
 
             val apiService = Retrofit.Builder()
                 .baseUrl(AppConfig.BASE_URL)
@@ -32,13 +37,16 @@ class ProfileViewModelFactory(
             val remoteDataSource = RecetaRemoteDataSource(apiService)
 
             val repository: RecetaRepository = RecetaRepositoryImpl(
-                localDataSource,
-                remoteDataSource
+                localDataSource = recetaLocalDataSource,
+                remoteDataSource = remoteDataSource
             )
 
             @Suppress("UNCHECKED_CAST")
             return ProfileViewModel(repository) as T
         }
+
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
+

@@ -15,7 +15,8 @@ import kotlinx.coroutines.launch
         Receta::class,
         Comentario::class,
         PasoReceta::class,
-        RecetaGuardada::class
+        RecetaGuardada::class,
+        Ingrediente::class
     ],
     version = 12
 )
@@ -26,6 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun comentarioDao(): ComentarioDao
     abstract fun pasoRecetaDao(): PasoRecetaDao
     abstract fun recetaGuardadaDao(): RecetaGuardadaDao
+    abstract fun ingredienteDao(): IngredienteDao
 
     companion object {
         @Volatile

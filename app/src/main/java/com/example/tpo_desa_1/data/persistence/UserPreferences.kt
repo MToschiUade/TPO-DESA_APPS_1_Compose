@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 // Usamos extension global para evitar instancias separadas
@@ -48,5 +49,10 @@ class UserPreferences(private val context: Context) {
 
     fun isLoggedIn(): Flow<Boolean> =
         getAccessToken().map { !it.isNullOrBlank() }
+
+    suspend fun getToken(): String? {
+        return context.dataStore.data.map { prefs -> prefs[ACCESS_TOKEN] }.firstOrNull()
+    }
+
 }
 

@@ -4,10 +4,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateListOf
+import com.example.tpo_desa_1.data.mapper.mapViewModelToDto
 import com.example.tpo_desa_1.data.model.PasoPreparacionUI
 import com.example.tpo_desa_1.data.model.TipoMedia
 import com.example.tpo_desa_1.data.model.IngredienteUI
 import com.example.tpo_desa_1.data.model.UnidadMedida
+import com.example.tpo_desa_1.data.source.remote.ApiService
+import com.example.tpo_desa_1.repository.RecetaRepository
 
 // Enum que representa los pasos del formulario
 enum class PasoFormularioReceta {
@@ -16,7 +19,9 @@ enum class PasoFormularioReceta {
     PORTADA
 }
 
-class CrearRecetaViewModel : ViewModel() {
+class CrearRecetaViewModel(
+    private val recetaRepository: RecetaRepository
+) : ViewModel() {
 
     // Estado actual del paso del formulario
     private val _pasoActual = mutableStateOf(PasoFormularioReceta.PREPARACION)
@@ -33,7 +38,6 @@ class CrearRecetaViewModel : ViewModel() {
     private val _porciones = mutableStateOf(1)
     val porciones: State<Int> = _porciones
 
-    // Paso 3: Portada
     private val _imagenPortadaUri = mutableStateOf<String?>(null)
     val imagenPortadaUri: State<String?> = _imagenPortadaUri
 
@@ -159,5 +163,28 @@ class CrearRecetaViewModel : ViewModel() {
 
         return recetaMap
     }
+
+    suspend fun enviarReceta(api: ApiService): Boolean {
+        val portadaUri = imagenPortadaUri.value
+        val portadaUrl = portadaUri ?: return false // Asegurarse que haya imagen
+
+        // En el futuro: subir imagen y obtener URL real
+        val recetaDTO = mapViewModelToDto(
+            titulo = tituloReceta.value,
+            portadaUrl = portadaUrl,
+            tiempoEnMinutos = obtenerTiempoTotalEnMinutos(),
+            ingredientes = ingredientes,
+            pasos = pasosPreparacion
+        )
+
+        return try {
+            api.postReceta(recetaDTO)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
 
 }

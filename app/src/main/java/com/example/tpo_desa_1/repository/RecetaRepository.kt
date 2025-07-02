@@ -1,6 +1,7 @@
 package com.example.tpo_desa_1.repository
 
 import com.example.tpo_desa_1.data.model.Receta
+import com.example.tpo_desa_1.data.model.RecetaDTO
 
 interface RecetaRepository {
     suspend fun obtenerTodas(): List<Receta>
@@ -9,4 +10,6 @@ interface RecetaRepository {
     suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta>
     suspend fun obtenerRecetasAprobadasRecientes(): List<Receta>
     suspend fun obtenerTodasAprobadas(): List<Receta>
+    suspend fun crearRecetaDesdeFormulario(dto: RecetaDTO): Boolean
+
 }

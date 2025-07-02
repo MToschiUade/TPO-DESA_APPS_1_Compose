@@ -14,6 +14,8 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.tpo_desa_1.data.source.remote.ApiService
+import com.example.tpo_desa_1.viewmodel.CrearRecetaViewModel
 
 
 sealed class Screen(
@@ -33,6 +35,8 @@ sealed class Screen(
 @Composable
 fun AppNavigation(
     sessionViewModel: SessionViewModel,
+    crearRecetaViewModel: CrearRecetaViewModel,
+    apiService: ApiService,
     navController: NavHostController = rememberNavController()
 ) {
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
@@ -107,7 +111,11 @@ fun AppNavigation(
         }
 
         composable("crear_receta") {
-            CrearRecetaScreen(navController)
+            CrearRecetaScreen(
+                navController = navController,
+                viewModel = crearRecetaViewModel,
+                apiService = apiService
+            )
         }
     }
 }

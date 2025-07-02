@@ -30,15 +30,16 @@ import android.widget.MediaController
 import android.widget.VideoView
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.platform.LocalContext
-
-
+import com.example.tpo_desa_1.data.source.remote.ApiService
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CrearRecetaScreen(
     navController: NavController,
-    viewModel: CrearRecetaViewModel = viewModel()
+    viewModel: CrearRecetaViewModel,
+    apiService: ApiService
 ) {
     val paso = viewModel.pasoActual.value
 
@@ -62,19 +63,23 @@ fun CrearRecetaScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // 📦 Contenido scrollable
+            // 💡 Contenido principal del paso actual
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 16.dp)
             ) {
                 when (paso) {
-                    PasoFormularioReceta.PREPARACION -> PasoPreparacion()
-                    PasoFormularioReceta.INGREDIENTES -> PasoIngredientes()
-                    PasoFormularioReceta.PORTADA -> PasoPortada()
+                    PasoFormularioReceta.PREPARACION -> PasoPreparacion(viewModel = viewModel)
+                    PasoFormularioReceta.INGREDIENTES -> PasoIngredientes(viewModel = viewModel)
+                    PasoFormularioReceta.PORTADA -> PasoPortada(
+                        viewModel = viewModel,
+                        apiService = apiService
+                    )
                 }
             }
 
+            // 🔘 Botones de navegación
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,10 +101,10 @@ fun CrearRecetaScreen(
                     }
                 }
             }
-
         }
     }
 }
+
 
 
 @Composable
@@ -353,9 +358,12 @@ fun PasoIngredientes(viewModel: CrearRecetaViewModel = viewModel()) {
 
 
 @Composable
-fun PasoPortada(viewModel: CrearRecetaViewModel = viewModel()) {
+fun PasoPortada(
+    viewModel: CrearRecetaViewModel,
+    apiService: ApiService
+) {
+    val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-
     val imagenUri = viewModel.imagenPortadaUri.value
     val titulo = viewModel.tituloReceta.value
     val horas = viewModel.tiempoHoras.value
@@ -504,16 +512,22 @@ fun PasoPortada(viewModel: CrearRecetaViewModel = viewModel()) {
 
     Button(
         onClick = {
-            val recetaMap = viewModel.crearReceta()
-            println("🧾 Receta generada:\n$recetaMap")
+            coroutineScope.launch {
+                val resultado = viewModel.enviarReceta(apiService)
+                if (resultado) {
+                    println("🎉 Receta enviada exitosamente")
+                    // Podés redirigir a otra pantalla si querés acá
+                } else {
+                    println("❌ Error al enviar la receta")
+                }
+            }
         },
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp)
     ) {
-        Text("Generar Receta (test)")
+        Text("✅ Enviar receta")
     }
-
 }
 
 

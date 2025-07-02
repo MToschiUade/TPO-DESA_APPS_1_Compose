@@ -5,6 +5,7 @@ import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.source.local.RecetaLocalDataSource
 import com.example.tpo_desa_1.data.source.remote.RecetaRemoteDataSource
 import com.example.tpo_desa_1.data.mapper.toDto
+import com.example.tpo_desa_1.data.model.RecetaDTO
 
 class RecetaRepositoryImpl(
     private val localDataSource: RecetaLocalDataSource,
@@ -29,9 +30,17 @@ class RecetaRepositoryImpl(
         }
     }
 
-    override suspend fun crearReceta(receta: Receta): Boolean {
+    override suspend fun crearReceta(receta: Receta): Boolean { // Meli: no lo estoy usando pq usa Mapper viejo: "RecetaMapper"
         return try {
             remoteDataSource.enviarReceta(receta.toDto())
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    override suspend fun crearRecetaDesdeFormulario(dto: RecetaDTO): Boolean {
+        return try {
+            remoteDataSource.enviarReceta(dto) // usa directamente el DTO generado desde CrearRecetaViewModel
         } catch (e: Exception) {
             false
         }
@@ -66,5 +75,6 @@ class RecetaRepositoryImpl(
             localDataSource.obtenerAprobadas()
         }
     }
+
 }
 

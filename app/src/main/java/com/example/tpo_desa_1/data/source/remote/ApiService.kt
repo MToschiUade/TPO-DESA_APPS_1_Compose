@@ -7,6 +7,8 @@ import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
+import com.example.tpo_desa_1.data.model.response.Usuario
+import com.example.tpo_desa_1.data.model.Receta
 
 
 interface ApiService {
@@ -71,4 +73,19 @@ interface ApiService {
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+/**@GET("usuarios/alias/{alias}")
+    suspend fun getUsuarioByAlias(
+        @Path("alias") alias: String,
+        @Header("Authorization") token: String
+    ): Usuario */
+
+    @GET("users/alias")
+    suspend fun getUsuarioPorAlias(@Query("alias") alias: String): Response<Usuario>
+
+
+    @GET("recipes/myrecipes")
+    suspend fun getMyRecipes(@Header("Authorization") token: String): Response<List<Receta>>
+
+
 }

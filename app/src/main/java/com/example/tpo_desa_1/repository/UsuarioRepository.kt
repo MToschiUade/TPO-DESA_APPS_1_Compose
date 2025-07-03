@@ -4,6 +4,8 @@ import com.example.tpo_desa_1.data.model.request.LoginRequest
 import com.example.tpo_desa_1.data.persistence.UserPreferences
 import com.example.tpo_desa_1.data.source.remote.ApiService
 import kotlinx.coroutines.flow.Flow
+import com.example.tpo_desa_1.data.model.response.Usuario
+import com.example.tpo_desa_1.data.model.Receta
 
 class UsuarioRepository(
     private val apiService: ApiService,
@@ -50,4 +52,29 @@ class UsuarioRepository(
     fun getRefreshToken(): Flow<String?> = userPreferences.getRefreshToken()
     fun getAlias(): Flow<String?> = userPreferences.getAlias()
     fun getEmail(): Flow<String?> = userPreferences.getEmail()
+
+    suspend fun getUserByAlias(alias: String): Usuario? {
+        return try {
+            val response = apiService.getUsuarioPorAlias(alias)
+            if (response.isSuccessful) {
+                response.body()
+            } else {
+                println("❌ Error obteniendo usuario: ${response.code()}")
+                null
+            }
+        } catch (e: Exception) {
+            println("💥 Excepción al obtener usuario: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun getRecetasCreadas(token: String): List<Receta> {
+        val response = apiService.getMyRecipes("Bearer $token")
+        return if (response.isSuccessful) {
+            response.body() ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
+
 }

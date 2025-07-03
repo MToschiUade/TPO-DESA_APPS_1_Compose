@@ -20,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Receta
+import com.example.tpo_desa_1.data.model.response.Usuario
 import com.example.tpo_desa_1.navigation.Screen
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.viewmodel.ProfileViewModel
@@ -39,22 +40,26 @@ fun ProfileScreen(
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
     val aliasState = sessionViewModel.alias.collectAsState(initial = null)
     val alias = aliasState.value
-    val emailState = sessionViewModel.email.collectAsState(initial = null)
-    val email = emailState.value
 
+    val usuario by sessionViewModel.usuario.collectAsState()
     val recetasCreadas by profileViewModel.recetasCreadas.collectAsState()
+    val token = sessionViewModel.getAccessTokenActual()
+    val cantidadRecetas by sessionViewModel.cantidadRecetasCreadas.collectAsState()
 
-    // Cargar recetas del usuario si hay alias
+    // Cargar datos del usuario y sus recetas
     LaunchedEffect(alias) {
-        alias?.let { profileViewModel.cargarRecetasCreadas(it) }
+        alias?.let {
+            sessionViewModel.cargarDatosUsuario()
+            // Agregamos esta línea 👇
+            sessionViewModel.cargarCantidadRecetasCreadas()
+        }
     }
 
     ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
         Box(modifier = modifier.padding(innerPadding)) {
-            if (isLoggedIn && alias != null && email != null) {
+            if (isLoggedIn && alias != null && usuario != null) {
                 UserProfileSection(
-                    alias = alias,
-                    email = email,
+                    usuario = usuario!!,
                     recetasCreadas = recetasCreadas,
                     navController = navController,
                     sessionViewModel = sessionViewModel
@@ -70,8 +75,7 @@ fun ProfileScreen(
 
 @Composable
 fun UserProfileSection(
-    alias: String,
-    email: String,
+    usuario: Usuario,
     recetasCreadas: List<Receta>,
     navController: NavController,
     sessionViewModel: SessionViewModel
@@ -82,9 +86,9 @@ fun UserProfileSection(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        ProfileHeader(alias)
-        RecipeStats(recetasCreadas)
-        AboutSection(email)
+        ProfileHeader(usuario.username)
+        RecipeStats(recetasCreadas = recetasCreadas, cantidadRecetas = sessionViewModel.cantidadRecetasCreadas.value ?: 0)
+        AboutSection(usuario)
 
         Spacer(Modifier.weight(1f))
 
@@ -113,9 +117,8 @@ fun ProfileHeader(alias: String) {
 
         Spacer(Modifier.height(8.dp))
 
-        //Text(usuario.alias, style = MaterialTheme.typography.titleMedium)
-        // Todo UPDATE USER PREFERENCE
-
+        Text(alias, style = MaterialTheme.typography.titleMedium)
+        Text("Chef Amateur", style = MaterialTheme.typography.bodySmall)
 
         Spacer(Modifier.height(8.dp))
 
@@ -125,11 +128,10 @@ fun ProfileHeader(alias: String) {
             Icon(Icons.Default.Email, contentDescription = "Email")
         }
     }
-    Spacer(Modifier.height(15.dp))
 }
 
 @Composable
-fun RecipeStats(recetasCreadas: List<Receta>) {
+fun RecipeStats(recetasCreadas: List<Receta>, cantidadRecetas: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -137,32 +139,27 @@ fun RecipeStats(recetasCreadas: List<Receta>) {
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+
+
+
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("${recetasCreadas.size}", style = MaterialTheme.typography.titleLarge)
+
+
+            Text("${cantidadRecetas}", style = MaterialTheme.typography.titleLarge)
             Text("Recetas subidas")
         }
-    }
 
+    }
 }
 
 @Composable
-
-/*fun AboutSection(usuario: Usuario) {*/
-/*TODO Revisar cambiar la firma para en lugar de usar el dataclass usuario por "user preference" que es la clase que ahora persiste la data del user*/
-    
-fun AboutSection(email: String) {
+fun AboutSection(usuario: Usuario) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Acerca de: ", style = MaterialTheme.typography.titleMedium)
-
-/*        Spacer(Modifier.height(10.dp))
-        InfoRow(Icons.Default.Place, usuario.pais)
+        Text("Acerca de", style = MaterialTheme.typography.titleMedium)
+        InfoRow(Icons.Default.Place, usuario.ubicacion ?: "Argentina")
         InfoRow(Icons.Default.Email, usuario.email)
-        InfoRow(Icons.Default.Person, "${usuario.nombre} ${usuario.apellido}")
-        InfoRow(Icons.Default.Verified, "Cuenta ${usuario.status}")*/
-        InfoRow(Icons.Default.Place, "Argentina")
-        InfoRow(Icons.Default.Email, email)
-        InfoRow(Icons.Default.Work, "UX Designer at Ratatouille")
-        InfoRow(Icons.Default.School, "Studying at UADE")
+        InfoRow(Icons.Default.Person, "${usuario.name} ${usuario.lastName}")
+        InfoRow(Icons.Default.Verified, if (usuario.status) "Cuenta activa" else "Cuenta inactiva")
     }
 }
 

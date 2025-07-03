@@ -83,5 +83,19 @@ class RecetaRepositoryImpl(
             localDataSource.obtenerAprobadas()
         }
     }
+
+    override suspend fun getRecetasCreadas(token: String): List<Receta> {
+        return try {
+            val response = remoteDataSource.getRecetasCreadas("Bearer $token")
+            if (response.isSuccessful) {
+                response.body() ?: emptyList()
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
 }
 

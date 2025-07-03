@@ -16,9 +16,11 @@ class ProfileViewModel(
     private val _recetasCreadas = MutableStateFlow<List<Receta>>(emptyList())
     val recetasCreadas: StateFlow<List<Receta>> = _recetasCreadas.asStateFlow()
 
-    fun cargarRecetasCreadas(aliasUsuario: String) {
+
+    fun cargarRecetasCreadas(token: String) {
         viewModelScope.launch {
-            _recetasCreadas.value = recetaRepository.obtenerRecetasPorUsuario(aliasUsuario)
+            val recetas = recetaRepository.getRecetasCreadas(token)
+            _recetasCreadas.value = recetas
         }
     }
 }

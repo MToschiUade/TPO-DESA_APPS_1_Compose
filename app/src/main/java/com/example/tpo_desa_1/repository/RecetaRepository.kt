@@ -9,4 +9,5 @@ interface RecetaRepository {
     suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta>
     suspend fun obtenerRecetasAprobadasRecientes(): List<Receta>
     suspend fun obtenerTodasAprobadas(): List<Receta>
+    suspend fun getRecetasCreadas(token: String): List<Receta>
 }

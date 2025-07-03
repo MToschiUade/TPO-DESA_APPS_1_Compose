@@ -11,9 +11,11 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.mapper.toModel
 import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
+import retrofit2.Response
 
 class RecetaRemoteDataSource(
     private val api: ApiService
+
 ) {
 
     suspend fun subirImagen(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
@@ -95,6 +97,9 @@ class RecetaRemoteDataSource(
             emptyList()
         }
     }
+    suspend fun getRecetasCreadas(token: String): Response<List<Receta>> {
 
+        return api.getMyRecipes(token)
+    }
 
 }

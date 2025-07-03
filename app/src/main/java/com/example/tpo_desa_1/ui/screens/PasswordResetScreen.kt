@@ -89,7 +89,7 @@ fun PasswordResetScreen(navController: NavController) {
                 Text("Enviar código")
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             TextButton(onClick = { navController.popBackStack() }) {
                 Text("← Regresar al inicio de sesión")

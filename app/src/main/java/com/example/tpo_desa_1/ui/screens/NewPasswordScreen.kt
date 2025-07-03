@@ -34,7 +34,7 @@ fun NewPasswordScreen(navController: NavController, email: String) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(16.dp)
+            .padding(10.dp)
     ) {
         IconButton(
             onClick = { navController.popBackStack() },

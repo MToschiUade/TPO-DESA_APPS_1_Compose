@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.tpo_desa_1.repository.UsuarioRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.example.tpo_desa_1.data.model.response.Usuario
 
 class SessionViewModel(
     application: Application,
@@ -26,6 +27,12 @@ class SessionViewModel(
 
     private val _email = MutableStateFlow<String?>(null)
     val email: StateFlow<String?> = _email.asStateFlow()
+
+    private val _usuario = MutableStateFlow<Usuario?>(null)
+    val usuario: StateFlow<Usuario?> = _usuario.asStateFlow()
+
+    private val _cantidadRecetasCreadas = MutableStateFlow(0)
+    val cantidadRecetasCreadas: StateFlow<Int> = _cantidadRecetasCreadas.asStateFlow()
 
     init {
         // Escuchar cambios en DataStore
@@ -73,6 +80,26 @@ class SessionViewModel(
             _alias.value = null
             _email.value = null
             _loginState.value = LoginResult.Idle
+        }
+    }
+
+    fun cargarDatosUsuario() {
+        val aliasActual = _alias.value ?: return
+        viewModelScope.launch {
+            val usuarioData = usuarioRepository.getUserByAlias(aliasActual)
+            _usuario.value = usuarioData
+        }
+    }
+
+    fun getAccessTokenActual(): String? {
+        return accessToken.value
+    }
+
+    fun cargarCantidadRecetasCreadas() {
+        val token = _accessToken.value ?: return
+        viewModelScope.launch {
+            val recetas = usuarioRepository.getRecetasCreadas(token)
+            _cantidadRecetasCreadas.value = recetas.size
         }
     }
 }

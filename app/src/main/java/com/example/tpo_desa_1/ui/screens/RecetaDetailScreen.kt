@@ -51,6 +51,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.res.painterResource
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Comentario
@@ -67,6 +68,11 @@ fun RecetaDetailScreen(
     usuarioActual: String?, // ✅ ahora puede ser null
     navController: NavController
 ) {
+
+    val porcionesValidas = listOf(0.125f, 0.25f, 0.5f) + (1..10).map { it.toFloat() }
+    val selectedPorcionIndex = remember { mutableStateOf(porcionesValidas.indexOf(1f)) }
+    val porcionActual = porcionesValidas.getOrElse(selectedPorcionIndex.value) { 1f }
+
     val context = LocalContext.current
     val recetaViewModel: RecetaViewModel = viewModel(
         factory = RecetaViewModelFactory(context)
@@ -109,6 +115,7 @@ fun RecetaDetailScreen(
         isLoggedIn = usuarioActual != null
     ) { padding ->
         receta?.let { r ->
+            val porcion = remember { mutableStateOf(1f) }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -125,7 +132,20 @@ fun RecetaDetailScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    IngredientesSection(ingredientes = detallesViewModel.ingredientes)
+                    IngredientesSection(
+                        ingredientes = detallesViewModel.ingredientes,
+                        porcion = porcionActual,
+                        onIncrement = {
+                            if (selectedPorcionIndex.value < porcionesValidas.lastIndex)
+                                selectedPorcionIndex.value += 1
+                        },
+                        onDecrement = {
+                            if (selectedPorcionIndex.value > 0)
+                                selectedPorcionIndex.value -= 1
+                        }
+                    )
+
+
                 }
 
                 item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -263,13 +283,19 @@ private fun EncabezadoReceta(    receta: Receta,
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
-private fun IngredientesSection(ingredientes: List<Ingrediente>) {
+fun IngredientesSection(
+    ingredientes: List<Ingrediente>,
+    porcion: Float,
+    onIncrement: () -> Unit,
+    onDecrement: () -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("Ingredientes", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             items(ingredientes) { ingrediente ->
+                val cantidadEscalada = ingrediente.medida * porcion
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
@@ -277,7 +303,7 @@ private fun IngredientesSection(ingredientes: List<Ingrediente>) {
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
                     Text(
-                        text = "${ingrediente.medida} ${ingrediente.nombreMedida}",
+                        text = "${cantidadEscalada.toReadable()} ${ingrediente.nombreMedida}",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
@@ -291,6 +317,7 @@ private fun IngredientesSection(ingredientes: List<Ingrediente>) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Porciones", modifier = Modifier.padding(end = 8.dp))
             Row(
@@ -299,13 +326,22 @@ private fun IngredientesSection(ingredientes: List<Ingrediente>) {
                     .background(Color(0xFFF1F1F1), RoundedCornerShape(6.dp))
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
-                Text("-", modifier = Modifier.padding(horizontal = 4.dp))
-                Text("5", modifier = Modifier.padding(horizontal = 4.dp))
-                Text("+", modifier = Modifier.padding(horizontal = 4.dp))
+                Text("-", modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .clickable { onDecrement() })
+                Text(
+                    text = porcion.toReadable(),
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+                Text("+", modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .clickable { onIncrement() })
             }
         }
     }
 }
+
+
 
 
 @Composable
@@ -555,4 +591,12 @@ private fun ComentarioCard(
             }
         }
     }
+}
+
+fun Float.toReadable(): String = when (this) {
+    1f -> "1"
+    0.5f -> "1/2"
+    0.25f -> "1/4"
+    0.125f -> "1/8"
+    else -> String.format("%.2f", this)
 }

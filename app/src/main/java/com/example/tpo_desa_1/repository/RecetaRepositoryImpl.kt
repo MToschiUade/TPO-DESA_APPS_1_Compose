@@ -122,5 +122,19 @@ class RecetaRepositoryImpl(
         }
     }
 
+    override suspend fun toggleRecetaDestacada(recipeId: Int, token: String): Result<String> {
+        return try {
+            val response = remoteDataSource.toggleFeaturedRecipe(recipeId, token)
+            if (response.isSuccessful) {
+                Result.success(response.body() ?: "Sin mensaje")
+            } else {
+                Result.failure(Exception("Error: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
 }
 

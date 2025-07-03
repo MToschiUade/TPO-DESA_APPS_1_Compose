@@ -14,6 +14,7 @@ import com.example.tpo_desa_1.data.model.response.MiRecetaDTO
 import com.example.tpo_desa_1.utils.uriToFile
 import okhttp3.RequestBody.Companion.asRequestBody
 import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
+import retrofit2.Response
 
 class RecetaRemoteDataSource(
     private val api: ApiService
@@ -121,5 +122,8 @@ class RecetaRemoteDataSource(
         }
     }
 
+    suspend fun toggleFeaturedRecipe(recipeId: Int, token: String): Response<String> {
+        return api.toggleFeaturedRecipe("Bearer $token", recipeId)
+    }
 
 }

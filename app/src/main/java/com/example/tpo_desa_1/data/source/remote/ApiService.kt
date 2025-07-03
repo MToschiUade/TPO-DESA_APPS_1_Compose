@@ -86,4 +86,11 @@ interface ApiService {
         @Query("alias") alias: String
     ): Response<UsuarioDetalleDTO>
 
+    @PUT("recipes/guardadas/{recipeId}")
+    suspend fun toggleFeaturedRecipe(
+        @Header("Authorization") token: String,
+        @Path("recipeId") recipeId: Int
+    ): Response<String> // o `Response<MessageResponse>` si querés tipar mejor la respuesta
+
+
 }

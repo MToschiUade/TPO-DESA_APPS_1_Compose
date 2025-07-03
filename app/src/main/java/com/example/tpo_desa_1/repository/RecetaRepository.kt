@@ -15,5 +15,6 @@ interface RecetaRepository {
     suspend fun crearRecetaDesdeFormulario(dto: RecetaDTO): Boolean
     suspend fun subirImagen(context: Context, uri: Uri, token: String): String?
     suspend fun obtenerMisRecetas(token: String): List<Receta>
+    suspend fun toggleRecetaDestacada(recipeId: Int, token: String): Result<String>
 
 }

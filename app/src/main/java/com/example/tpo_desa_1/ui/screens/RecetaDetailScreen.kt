@@ -54,6 +54,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Comentario
+import com.example.tpo_desa_1.data.persistence.UserPreferences
+import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModel
+import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -67,6 +70,12 @@ fun RecetaDetailScreen(
     val recetaViewModel: RecetaViewModel = viewModel(
         factory = RecetaViewModelFactory(context)
     )
+
+    val userPreferences = UserPreferences(context)
+    val destacarViewModel: DestacarRecetaViewModel = viewModel(
+        factory = DestacarRecetaViewModelFactory(context, userPreferences)
+    )
+
 
     val db = AppDatabase.getDatabase(context)
 
@@ -105,8 +114,10 @@ fun RecetaDetailScreen(
                     EncabezadoReceta(
                         receta = r,
                         usuarioLogueado = usuarioActual != null,
-                        onBack = { navController.popBackStack() }
+                        onBack = { navController.popBackStack() },
+                        destacarViewModel = destacarViewModel
                     )
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     IngredientesSection()
@@ -149,7 +160,10 @@ fun RecetaDetailScreen(
 }
 
 @Composable
-private fun EncabezadoReceta(receta: Receta,usuarioLogueado: Boolean,onBack: () -> Unit) {
+private fun EncabezadoReceta(    receta: Receta,
+                                 usuarioLogueado: Boolean,
+                                 onBack: () -> Unit,
+                                 destacarViewModel: DestacarRecetaViewModel) {
     Box(modifier = Modifier.fillMaxWidth()) {
         AsyncImage(
             model = receta.imagenPortadaUrl,
@@ -188,7 +202,7 @@ private fun EncabezadoReceta(receta: Receta,usuarioLogueado: Boolean,onBack: () 
         // Estrellita (si hay sesión)
         if (usuarioLogueado) {
             IconButton(
-                onClick = { /* futura funcionalidad */ },
+                onClick = { destacarViewModel.toggleDestacada(receta.id) },
                 modifier = Modifier
                     .padding(12.dp)
                     .align(Alignment.TopEnd)

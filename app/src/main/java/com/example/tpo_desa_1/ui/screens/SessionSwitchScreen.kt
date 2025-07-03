@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.navigation.Screen
+import androidx.compose.material3.TextButton
 
 
 @Composable
@@ -108,11 +109,18 @@ fun SessionSwitchScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Contraseña", style = MaterialTheme.typography.labelSmall)
-                Text(
-                    "¿Olvidaste tu contraseña?",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                TextButton(
+                    onClick = {
+                        navController.navigate("password_reset")
+                    },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        "¿Olvidaste tu contraseña?",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
 
             OutlinedTextField(

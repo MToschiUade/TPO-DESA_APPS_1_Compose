@@ -14,6 +14,7 @@ import com.example.tpo_desa_1.data.model.response.MiRecetaDTO
 import com.example.tpo_desa_1.utils.uriToFile
 import okhttp3.RequestBody.Companion.asRequestBody
 import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
+import com.example.tpo_desa_1.data.model.response.RecetaGuardadaDTO
 import retrofit2.Response
 
 class RecetaRemoteDataSource(
@@ -125,5 +126,15 @@ class RecetaRemoteDataSource(
     suspend fun toggleFeaturedRecipe(recipeId: Int, token: String): Response<String> {
         return api.toggleFeaturedRecipe("Bearer $token", recipeId)
     }
+
+    suspend fun obtenerRecetasGuardadas(token: String): List<RecetaGuardadaDTO> = withContext(Dispatchers.IO) {
+        return@withContext try {
+            api.getRecetasGuardadas("Bearer $token")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
 
 }

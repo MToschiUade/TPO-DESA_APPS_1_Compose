@@ -135,6 +135,24 @@ class RecetaRepositoryImpl(
         }
     }
 
+    override suspend fun obtenerRecetasGuardadas(token: String): List<Receta> {
+        return try {
+            val guardadasDto = remoteDataSource.obtenerRecetasGuardadas(token)
+            val triples = guardadasDto.map { it.toModel() }
+
+            val recetas = triples.map { it.first }
+            val pasos = triples.flatMap { it.second }
+            val ingredientes = triples.flatMap { it.third }
+
+            localDataSource.insertarRecetasConDependencias(recetas, pasos, ingredientes)
+
+            recetas
+        } catch (e: Exception) {
+            localDataSource.obtenerRecientesAprobadas() // fallback opcional
+        }
+    }
+
+
 
 }
 

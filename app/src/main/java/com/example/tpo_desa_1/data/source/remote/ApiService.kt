@@ -9,6 +9,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
+import com.example.tpo_desa_1.data.model.response.RecetaGuardadaDTO
 import com.example.tpo_desa_1.data.model.response.UsuarioDetalleDTO
 
 
@@ -92,5 +93,9 @@ interface ApiService {
         @Path("recipeId") recipeId: Int
     ): Response<String> // o `Response<MessageResponse>` si querés tipar mejor la respuesta
 
+    @GET("recipes/guardadas")
+    suspend fun getRecetasGuardadas(
+        @Header("Authorization") token: String
+    ): List<RecetaGuardadaDTO>
 
 }

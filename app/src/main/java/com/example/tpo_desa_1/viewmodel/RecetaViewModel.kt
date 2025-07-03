@@ -66,6 +66,13 @@ class RecetaViewModel(
         }
     }
 
+    fun cargarRecetasGuardadas(token: String) {
+        viewModelScope.launch {
+            _recetasGuardadas.value = recetaRepository.obtenerRecetasGuardadas(token)
+        }
+    }
+
+
 
     /*    fun cargarRecetasGuardadas(ids: List<Int>) {
             viewModelScope.launch {

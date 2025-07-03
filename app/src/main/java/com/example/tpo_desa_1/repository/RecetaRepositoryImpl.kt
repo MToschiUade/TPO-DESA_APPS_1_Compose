@@ -14,6 +14,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import com.example.tpo_desa_1.data.mapper.toModel
 
 class RecetaRepositoryImpl(
     private val localDataSource: RecetaLocalDataSource,
@@ -66,18 +67,34 @@ class RecetaRepositoryImpl(
 
     override suspend fun obtenerRecetasAprobadasRecientes(): List<Receta> {
         return try {
-            val recetas = remoteDataSource.obtenerRecientesAprobadas()
-            localDataSource.insertarTodas(recetas)
+            val recetasDto = remoteDataSource.obtenerRecientesAprobadasDTO()
+
+            val triples = recetasDto.map { it.toModel() }
+            val recetas = triples.map { it.first }
+            val pasos = triples.flatMap { it.second }
+            val ingredientes = triples.flatMap { it.third }
+
+            localDataSource.insertarRecetasConDependencias(recetas, pasos, ingredientes)
+
             recetas
         } catch (e: Exception) {
             localDataSource.obtenerRecientesAprobadas()
         }
     }
 
+
     override suspend fun obtenerTodasAprobadas(): List<Receta> {
         return try {
-            val recetas = remoteDataSource.obtenerAprobadas()
-            localDataSource.insertarTodas(recetas)
+            val recetasDto = remoteDataSource.obtenerAprobadasAprobadasDTO()
+
+
+            val triples = recetasDto.map { it.toModel() }
+            val recetas = triples.map { it.first }
+            val pasos = triples.flatMap { it.second }
+            val ingredientes = triples.flatMap { it.third }
+
+            localDataSource.insertarRecetasConDependencias(recetas, pasos, ingredientes)
+
             recetas
         } catch (e: Exception) {
             localDataSource.obtenerAprobadas()

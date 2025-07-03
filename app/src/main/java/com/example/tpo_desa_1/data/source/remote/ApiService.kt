@@ -7,6 +7,8 @@ import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
+import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
+
 
 interface ApiService {
 
@@ -38,13 +40,11 @@ interface ApiService {
     //   RECETAS APROBADAS
     // ——————————————————————————————
 
-    /** Recetas aprobadas más recientes */
-    @GET("recipes/approved/recent")
-    suspend fun getRecetasAprobadasRecientes(): List<RecetaDTO>
+    @GET("recipes/aprobadas")
+    suspend fun getRecetasAprobadasNew(): List<RecetaAprobadaDTO>
 
-    /** Todas las recetas aprobadas */
-    @GET("recipes/approved")
-    suspend fun getRecetasAprobadas(): List<RecetaDTO>
+    @GET("recipes/status/aprobados/ultimas")
+    suspend fun getRecetasAprobadasRecientesNew(): List<RecetaAprobadaDTO>
 
     // ——————————————————————————————
     //   CREACIÓN / SUBIDA

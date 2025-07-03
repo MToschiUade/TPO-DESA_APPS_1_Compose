@@ -1,27 +1,28 @@
 package com.example.tpo_desa_1.ui.screens
+
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+import androidx.navigation.NavController
 import com.example.tpo_desa_1.ui.components.BottomNavBar
 import com.example.tpo_desa_1.ui.components.RecommendationCarousel
 import com.example.tpo_desa_1.ui.components.RecipeListSection
 import com.example.tpo_desa_1.viewmodel.RecetaViewModel
 import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.data.db.AppDatabase
-
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import com.example.tpo_desa_1.repository.UsuarioRepository
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
-
 
 @Composable
 fun HomeScreen(
@@ -36,8 +37,14 @@ fun HomeScreen(
     val recetasAprobadasRecientes by viewModel.recetasAprobadasRecientes
     val recetasAprobadas by viewModel.recetasAprobadas
 
-    // ✅ Observamos si el usuario está logueado
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
+
+    var search by remember { mutableStateOf("") }
+
+    // Ordenamiento
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("Nombre") }
+    val opcionesOrden = listOf("Nombre", "Más nuevas", "Usuario")
 
     LaunchedEffect(Unit) {
         viewModel.cargarRecientesAprobadas()
@@ -47,7 +54,6 @@ fun HomeScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            // ✅ Pasamos el estado a la BottomNavBar
             BottomNavBar(navController = navController, isLoggedIn = isLoggedIn)
         },
         contentWindowInsets = WindowInsets.systemBars
@@ -59,22 +65,76 @@ fun HomeScreen(
         ) {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = search,
+                    onValueChange = { search = it },
                     placeholder = { Text("Busca las mejores recetas...") },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(65.dp)
+                        .padding(bottom = 12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color(0xFF00A86B),
+                        focusedBorderColor = Color(0xFF00A86B),
+                        unfocusedContainerColor = Color(0xFFF8F8F8),
+                        focusedContainerColor = Color(0xFFFFFFFF)
+                    )
                 )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { expanded = true }
+                    ) {
+                        Text("Ordenar por: $selectedOption", modifier = Modifier.padding(end = 8.dp))
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Expandir menú")
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        opcionesOrden.forEach { opcion ->
+                            DropdownMenuItem(
+                                text = { Text(opcion) },
+                                onClick = {
+                                    selectedOption = opcion
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            RecommendationCarousel(recetas = recetasAprobadasRecientes, navController = navController)
+
+            RecommendationCarousel(
+                recetas = recetasAprobadasRecientes,
+                navController = navController
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            val recetasFiltradas = recetasAprobadas
+                .filter {
+                    it.nombre.contains(search, ignoreCase = true) ||
+                            it.autor.contains(search, ignoreCase = true)
+                }
+                .let {
+                    when (selectedOption) {
+                        "Más nuevas" -> it.sortedByDescending { receta -> receta.fechaRevision ?: 0L }
+                        "Usuario" -> it.sortedBy { receta -> receta.autor }
+                        else -> it.sortedBy { receta -> receta.nombre }
+                    }
+                }
+
             RecipeListSection(
-                recetas = recetasAprobadas.shuffled(),
+                recetas = recetasFiltradas,
                 titulo = "Explorá recetas de la comunidad",
                 maxItems = 4,
                 mostrarEstado = false,

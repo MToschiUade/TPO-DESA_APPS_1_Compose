@@ -10,7 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.example.tpo_desa_1.config.AppConfig
 import com.example.tpo_desa_1.config.AuthInterceptor
+import com.example.tpo_desa_1.data.db.IngredienteDao
+import com.example.tpo_desa_1.data.db.PasoRecetaDao
 import com.example.tpo_desa_1.data.db.RecetaDao
+import com.example.tpo_desa_1.data.model.Ingrediente
+import com.example.tpo_desa_1.data.model.PasoReceta
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.persistence.UserPreferences
 import com.example.tpo_desa_1.data.source.remote.ApiService
@@ -62,18 +66,38 @@ class MainActivity : ComponentActivity() {
         val sessionViewModel = ViewModelProvider(this, sessionViewModelFactory)[SessionViewModel::class.java]
 
         val recetaRemoteDataSource = RecetaRemoteDataSource(apiService)
-        val recetaLocalDataSource = RecetaLocalDataSource(object : RecetaDao {
-            override suspend fun obtenerTodas(): List<Receta> = emptyList()
-            override suspend fun obtenerPorId(id: Int): Receta? = null
-            override suspend fun insertar(receta: Receta) {}
-            override suspend fun insertarTodas(recetas: List<Receta>) {}
-            override suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta> = emptyList()
-            override suspend fun obtenerRecientesAprobadas(): List<Receta> = emptyList()
-            override suspend fun obtenerAprobadas(): List<Receta> = emptyList()
-            override suspend fun borrarTodas() {}
-            override suspend fun eliminar(receta: Receta) {}
-            override suspend fun obtenerPorNombre(nombre: String): Receta? = null
-        }) // tengo q tenerlo a mano hasta q se integre y se use una receta real
+
+        val pasoDao = object : PasoRecetaDao {
+            override suspend fun obtenerPorReceta(recetaId: Int) = emptyList<PasoReceta>()
+            override suspend fun insertar(pasos: List<PasoReceta>) {}
+            override suspend fun insertarTodos(pasos: List<PasoReceta>) {}
+            override suspend fun borrarTodos() {}
+        }
+
+        val ingredienteDao = object : IngredienteDao {
+            override suspend fun obtenerPorReceta(recetaId: Int) = emptyList<Ingrediente>()
+            override suspend fun insertar(ingredientes: List<Ingrediente>) {}
+            override suspend fun borrarTodos() {}
+        }
+
+        val recetaLocalDataSource = RecetaLocalDataSource(
+            recetaDao = object : RecetaDao {
+                override suspend fun obtenerTodas(): List<Receta> = emptyList()
+                override suspend fun obtenerPorId(id: Int): Receta? = null
+                override suspend fun insertar(receta: Receta) {}
+                override suspend fun insertarTodas(recetas: List<Receta>) {}
+                override suspend fun obtenerRecetasPorUsuario(alias: String): List<Receta> = emptyList()
+                override suspend fun obtenerRecientesAprobadas(): List<Receta> = emptyList()
+                override suspend fun obtenerAprobadas(): List<Receta> = emptyList()
+                override suspend fun borrarTodas() {}
+                override suspend fun eliminar(receta: Receta) {}
+                override suspend fun obtenerPorNombre(nombre: String): Receta? = null
+                override suspend fun obtenerPorIds(ids: List<Int>): List<Receta> = emptyList()
+            },
+            pasoDao = pasoDao,
+            ingredienteDao = ingredienteDao
+        )
+
         val recetaRepository = RecetaRepositoryImpl(recetaLocalDataSource, recetaRemoteDataSource)
         val crearRecetaViewModelFactory = CrearRecetaViewModelFactory(
             recetaRepository,

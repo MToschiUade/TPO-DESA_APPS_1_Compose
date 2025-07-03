@@ -12,6 +12,7 @@ import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.mapper.toModel
 import com.example.tpo_desa_1.utils.uriToFile
 import okhttp3.RequestBody.Companion.asRequestBody
+import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
 
 class RecetaRemoteDataSource(
     private val api: ApiService
@@ -92,22 +93,23 @@ class RecetaRemoteDataSource(
         }
     }
 
-    suspend fun obtenerRecientesAprobadas(): List<Receta> = withContext(Dispatchers.IO) {
+    suspend fun obtenerAprobadasAprobadasDTO(): List<RecetaAprobadaDTO> = withContext(Dispatchers.IO) {
         try {
-            api.getRecetasAprobadasRecientes().map { it.toModel() }
+            api.getRecetasAprobadasNew()
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()
         }
     }
 
-    suspend fun obtenerAprobadas(): List<Receta> = withContext(Dispatchers.IO) {
+    suspend fun obtenerRecientesAprobadasDTO(): List<RecetaAprobadaDTO> = withContext(Dispatchers.IO) {
         try {
-            api.getRecetasAprobadas().map { it.toModel() }
+            api.getRecetasAprobadasRecientesNew()
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()
         }
     }
+
 
 }

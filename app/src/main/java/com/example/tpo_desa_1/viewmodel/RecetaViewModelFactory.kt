@@ -20,11 +20,14 @@ class RecetaViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RecetaViewModel::class.java)) {
 
-            // Room DAO
-            val recetaDao = AppDatabase.getDatabase(context).recetaDao()
-            val localDataSource = RecetaLocalDataSource(recetaDao)
+            val db = AppDatabase.getDatabase(context)
 
-            // Retrofit service con base URL del backend real
+            val localDataSource = RecetaLocalDataSource(
+                recetaDao = db.recetaDao(),
+                pasoDao = db.pasoRecetaDao(),
+                ingredienteDao = db.ingredienteDao()
+            )
+
             val apiService = Retrofit.Builder()
                 .baseUrl(AppConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -33,15 +36,18 @@ class RecetaViewModelFactory(
 
             val remoteDataSource = RecetaRemoteDataSource(apiService)
 
-            // Repositorio desacoplado
             val repository: RecetaRepository = RecetaRepositoryImpl(
-                localDataSource,
-                remoteDataSource
+                localDataSource = localDataSource,
+                remoteDataSource = remoteDataSource
             )
 
             @Suppress("UNCHECKED_CAST")
             return RecetaViewModel(repository) as T
         }
+
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
+
+

@@ -3,6 +3,7 @@ package com.example.tpo_desa_1.data.source.remote
 import com.example.tpo_desa_1.data.model.RecetaDTO
 import com.example.tpo_desa_1.data.model.request.LoginRequest
 import com.example.tpo_desa_1.data.model.response.LoginResponse
+import com.example.tpo_desa_1.data.model.response.MiRecetaDTO
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -72,4 +73,10 @@ interface ApiService {
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    @GET("recipes/myrecipes")
+    suspend fun getMisRecetas(
+        @Header("Authorization") token: String
+    ): List<MiRecetaDTO>
+
 }

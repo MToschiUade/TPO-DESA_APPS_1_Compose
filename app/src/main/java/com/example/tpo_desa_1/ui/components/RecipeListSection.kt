@@ -133,9 +133,10 @@ fun RecipeListSection(
                             if (mostrarEstado) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 val estadoColor = when (receta.estado.lowercase()) {
-                                    "aprobada" -> Color(0xFF34A853)
+                                    //TODO cambiar los status del BE para que coincidan con el FE y terminen en A el objeto es receta!
+                                    "aprobado" -> Color(0xFF34A853)
                                     "pendiente" -> Color(0xFFFFA000)
-                                    "rechazada" -> Color(0xFFE53935)
+                                    "rechazado" -> Color(0xFFE53935)
                                     else -> Color.Gray
                                 }
 

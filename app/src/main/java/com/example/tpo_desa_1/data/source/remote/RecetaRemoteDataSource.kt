@@ -10,6 +10,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.mapper.toModel
+import com.example.tpo_desa_1.data.model.response.MiRecetaDTO
 import com.example.tpo_desa_1.utils.uriToFile
 import okhttp3.RequestBody.Companion.asRequestBody
 import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
@@ -105,6 +106,15 @@ class RecetaRemoteDataSource(
     suspend fun obtenerRecientesAprobadasDTO(): List<RecetaAprobadaDTO> = withContext(Dispatchers.IO) {
         try {
             api.getRecetasAprobadasRecientesNew()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerMisRecetas(token: String): List<MiRecetaDTO> = withContext(Dispatchers.IO) {
+        return@withContext try {
+            api.getMisRecetas("Bearer $token")
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()

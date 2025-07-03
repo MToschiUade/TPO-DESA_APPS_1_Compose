@@ -60,12 +60,19 @@ class RecetaViewModel(
         }
     }
 
-/*    fun cargarRecetasGuardadas(ids: List<Int>) {
+    fun cargarMisRecetas(token: String) {
         viewModelScope.launch {
-            _recetasGuardadas.value = recetaRepository.obtenerRecetasPorIds(ids)
-            TODO pendiente implementar
+            _recetasDelUsuario.value = recetaRepository.obtenerMisRecetas(token)
         }
-    }*/
+    }
+
+
+    /*    fun cargarRecetasGuardadas(ids: List<Int>) {
+            viewModelScope.launch {
+                _recetasGuardadas.value = recetaRepository.obtenerRecetasPorIds(ids)
+                TODO pendiente implementar
+            }
+        }*/
 
 
 }

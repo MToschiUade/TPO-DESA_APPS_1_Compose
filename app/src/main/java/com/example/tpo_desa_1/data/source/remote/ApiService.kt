@@ -9,6 +9,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
+import com.example.tpo_desa_1.data.model.response.UsuarioDetalleDTO
 
 
 interface ApiService {
@@ -78,5 +79,11 @@ interface ApiService {
     suspend fun getMisRecetas(
         @Header("Authorization") token: String
     ): List<MiRecetaDTO>
+
+    @GET("users/alias")
+    suspend fun getUsuarioDetalle(
+        @Header("Authorization") token: String,
+        @Query("alias") alias: String
+    ): Response<UsuarioDetalleDTO>
 
 }

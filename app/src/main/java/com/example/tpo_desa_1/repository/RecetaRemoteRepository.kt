@@ -2,6 +2,7 @@ package com.example.tpo_desa_1.repository
 
 import android.content.Context
 import android.net.Uri
+import com.example.tpo_desa_1.config.AppConfig
 import com.example.tpo_desa_1.data.model.*
 import com.example.tpo_desa_1.data.source.remote.ApiService
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class RecetaRemoteRepository {
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("http://127.0.0.1:4002/")
+        .baseUrl(AppConfig.BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

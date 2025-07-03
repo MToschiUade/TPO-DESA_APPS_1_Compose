@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.tpo_desa_1.repository.UsuarioRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.example.tpo_desa_1.data.model.UsuarioDetalle
+
 
 class SessionViewModel(
     application: Application,
@@ -26,6 +28,9 @@ class SessionViewModel(
 
     private val _email = MutableStateFlow<String?>(null)
     val email: StateFlow<String?> = _email.asStateFlow()
+
+    private val _usuarioDetalle = MutableStateFlow<UsuarioDetalle?>(null)
+    val usuarioDetalle: StateFlow<UsuarioDetalle?> = _usuarioDetalle.asStateFlow()
 
     init {
         // Escuchar cambios en DataStore
@@ -75,5 +80,18 @@ class SessionViewModel(
             _loginState.value = LoginResult.Idle
         }
     }
+
+    fun loadUsuarioDetalle() {
+        viewModelScope.launch {
+            val detalle = usuarioRepository.obtenerUsuarioDetalle()
+            if (detalle != null) {
+                println("✅ UsuarioDetalle recibido: $detalle")
+                _usuarioDetalle.value = detalle
+            } else {
+                println("⚠️ No se pudo obtener info detallada del usuario")
+            }
+        }
+    }
+
 }
 

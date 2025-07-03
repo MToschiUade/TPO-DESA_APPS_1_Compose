@@ -20,12 +20,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Receta
+import com.example.tpo_desa_1.data.model.UsuarioDetalle
 import com.example.tpo_desa_1.navigation.Screen
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.viewmodel.ProfileViewModel
 import com.example.tpo_desa_1.viewmodel.ProfileViewModelFactory
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
-
 @Composable
 fun ProfileScreen(
     navController: NavController,
@@ -39,23 +39,25 @@ fun ProfileScreen(
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
     val aliasState = sessionViewModel.alias.collectAsState(initial = null)
     val alias = aliasState.value
-    val emailState = sessionViewModel.email.collectAsState(initial = null)
-    val email = emailState.value
+    val usuarioDetalle by sessionViewModel.usuarioDetalle.collectAsState()
 
     val recetasCreadas by profileViewModel.recetasCreadas.collectAsState()
 
-    // Cargar recetas del usuario si hay alias
+    // Cargar recetas y detalle del usuario
     LaunchedEffect(alias) {
-        alias?.let { profileViewModel.cargarRecetasCreadas(it) }
+        alias?.let {
+            profileViewModel.cargarRecetasCreadas(it)
+            sessionViewModel.loadUsuarioDetalle()
+        }
     }
 
     ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
         Box(modifier = modifier.padding(innerPadding)) {
-            if (isLoggedIn && alias != null && email != null) {
+            if (isLoggedIn && alias != null) {
                 UserProfileSection(
                     alias = alias,
-                    email = email,
                     recetasCreadas = recetasCreadas,
+                    usuarioDetalle = usuarioDetalle,
                     navController = navController,
                     sessionViewModel = sessionViewModel
                 )
@@ -71,8 +73,8 @@ fun ProfileScreen(
 @Composable
 fun UserProfileSection(
     alias: String,
-    email: String,
     recetasCreadas: List<Receta>,
+    usuarioDetalle: UsuarioDetalle?,
     navController: NavController,
     sessionViewModel: SessionViewModel
 ) {
@@ -82,9 +84,9 @@ fun UserProfileSection(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        ProfileHeader(alias)
+        ProfileHeader(alias = alias, descripcion = usuarioDetalle?.descripcion)
         RecipeStats(recetasCreadas)
-        AboutSection(email)
+        AboutSection(usuarioDetalle = usuarioDetalle)
 
         Spacer(Modifier.weight(1f))
 
@@ -101,7 +103,7 @@ fun UserProfileSection(
 }
 
 @Composable
-fun ProfileHeader(alias: String) {
+fun ProfileHeader(alias: String, descripcion: String?) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
             painter = painterResource(id = R.drawable.burger),
@@ -113,9 +115,12 @@ fun ProfileHeader(alias: String) {
 
         Spacer(Modifier.height(8.dp))
 
-        //Text(usuario.alias, style = MaterialTheme.typography.titleMedium)
-        // Todo UPDATE USER PREFERENCE
+        Text(alias, style = MaterialTheme.typography.titleMedium)
 
+        descripcion?.let {
+            Spacer(Modifier.height(4.dp))
+            Text(it, style = MaterialTheme.typography.bodyMedium)
+        }
 
         Spacer(Modifier.height(8.dp))
 
@@ -127,6 +132,7 @@ fun ProfileHeader(alias: String) {
     }
     Spacer(Modifier.height(15.dp))
 }
+
 
 @Composable
 fun RecipeStats(recetasCreadas: List<Receta>) {
@@ -142,38 +148,24 @@ fun RecipeStats(recetasCreadas: List<Receta>) {
             Text("Recetas subidas")
         }
     }
-
 }
 
 @Composable
-
-/*fun AboutSection(usuario: Usuario) {*/
-/*TODO Revisar cambiar la firma para en lugar de usar el dataclass usuario por "user preference" que es la clase que ahora persiste la data del user*/
-    
-fun AboutSection(email: String) {
+fun AboutSection(usuarioDetalle: UsuarioDetalle?) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Acerca de: ", style = MaterialTheme.typography.titleMedium)
+        Text("Acerca de:", style = MaterialTheme.typography.titleMedium)
 
-/*        Spacer(Modifier.height(10.dp))
-        InfoRow(Icons.Default.Place, usuario.pais)
-        InfoRow(Icons.Default.Email, usuario.email)
-        InfoRow(Icons.Default.Person, "${usuario.nombre} ${usuario.apellido}")
-        InfoRow(Icons.Default.Verified, "Cuenta ${usuario.status}")*/
-        InfoRow(Icons.Default.Place, "Argentina")
-        InfoRow(Icons.Default.Email, email)
-        InfoRow(Icons.Default.Work, "UX Designer at Ratatouille")
-        InfoRow(Icons.Default.School, "Studying at UADE")
+        Spacer(Modifier.height(8.dp))
+
+        Text("Ubicación: ${usuarioDetalle?.ubicacion ?: "Ubicación desconocida"}")
+        Text("Email: ${usuarioDetalle?.email ?: "Email no disponible"}")
+        Text("Nombre completo: ${usuarioDetalle?.nombre ?: "Nombre"} ${usuarioDetalle?.apellido ?: "Apellido"}")
+        Text("Descripción: ${usuarioDetalle?.descripcion ?: "Sin descripción"}")
+        Text("Estado de cuenta: ${if (usuarioDetalle?.status == true) "Activa" else "Inactiva"}")
     }
 }
 
-@Composable
-fun InfoRow(icon: ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null)
-        Spacer(Modifier.width(8.dp))
-        Text(text)
-    }
-}
+
 
 @Composable
 fun EndSessionButton(onConfirmLogout: () -> Unit) {

@@ -4,6 +4,7 @@ import com.example.tpo_desa_1.data.model.RecetaDTO
 import com.example.tpo_desa_1.data.model.request.LoginRequest
 import com.example.tpo_desa_1.data.model.response.LoginResponse
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 import com.example.tpo_desa_1.data.model.response.RecetaAprobadaDTO
@@ -55,12 +56,12 @@ interface ApiService {
         @Body receta: RecetaDTO
     )
 
-    /** Sube una imagen al servidor (requiere auth) */
     @Multipart
-    @POST("image/upload")
-    suspend fun uploadImage(
-        @Part image: MultipartBody.Part
-    ): String
+    @POST("/image/upload")
+    suspend fun subirImagen(
+        @Part imagen: MultipartBody.Part,
+        @Header("Authorization") token: String
+    ): Response<ResponseBody>
 
     // ——————————————————————————————
     //   AUTENTICACIÓN

@@ -1,10 +1,19 @@
 package com.example.tpo_desa_1.repository
 
+import android.content.Context
+import android.net.Uri
 import com.example.tpo_desa_1.config.AppConfig
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.source.local.RecetaLocalDataSource
 import com.example.tpo_desa_1.data.source.remote.RecetaRemoteDataSource
 import com.example.tpo_desa_1.data.mapper.toDto
+import com.example.tpo_desa_1.data.model.RecetaDTO
+import com.example.tpo_desa_1.utils.uriToFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import com.example.tpo_desa_1.data.mapper.toModel
 
 class RecetaRepositoryImpl(
@@ -30,9 +39,17 @@ class RecetaRepositoryImpl(
         }
     }
 
-    override suspend fun crearReceta(receta: Receta): Boolean {
+    override suspend fun crearReceta(receta: RecetaDTO): Boolean {
         return try {
-            remoteDataSource.enviarReceta(receta.toDto())
+            remoteDataSource.enviarReceta(receta)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    override suspend fun crearRecetaDesdeFormulario(dto: RecetaDTO): Boolean {
+        return try {
+            remoteDataSource.enviarReceta(dto) // usa directamente el DTO generado desde CrearRecetaViewModel
         } catch (e: Exception) {
             false
         }
@@ -83,5 +100,11 @@ class RecetaRepositoryImpl(
             localDataSource.obtenerAprobadas()
         }
     }
+
+    override suspend fun subirImagen(context: Context, uri: Uri, token: String): String? {
+        return remoteDataSource.subirImagen(context, uri, token)
+    }
+
+
 }
 

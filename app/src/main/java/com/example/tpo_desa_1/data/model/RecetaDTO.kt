@@ -2,7 +2,7 @@ package com.example.tpo_desa_1.data.model;
 
 data class RecetaDTO(
         val title: String,
-        val image: String,
+        val imagePortada: String,
         val ingredientes: List<IngredienteDTO>,
         val pasos: List<PasoDTO>,
         val fecha: String,

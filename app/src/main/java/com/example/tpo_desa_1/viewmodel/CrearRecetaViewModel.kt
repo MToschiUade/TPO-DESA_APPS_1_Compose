@@ -1,13 +1,25 @@
 package com.example.tpo_desa_1.viewmodel
 
+import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateListOf
+import com.example.tpo_desa_1.data.mapper.mapViewModelToDto
 import com.example.tpo_desa_1.data.model.PasoPreparacionUI
 import com.example.tpo_desa_1.data.model.TipoMedia
 import com.example.tpo_desa_1.data.model.IngredienteUI
 import com.example.tpo_desa_1.data.model.UnidadMedida
+import com.example.tpo_desa_1.data.persistence.UserPreferences
+import com.example.tpo_desa_1.data.source.remote.ApiService
+import com.example.tpo_desa_1.repository.RecetaRepository
+import com.example.tpo_desa_1.utils.uriToFile
+import kotlinx.coroutines.flow.firstOrNull
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import android.net.Uri
+
 
 // Enum que representa los pasos del formulario
 enum class PasoFormularioReceta {
@@ -16,7 +28,11 @@ enum class PasoFormularioReceta {
     PORTADA
 }
 
-class CrearRecetaViewModel : ViewModel() {
+class CrearRecetaViewModel(
+    private val recetaRepository: RecetaRepository,
+    private val userPreferences: UserPreferences,
+    private val appContext: Context
+) : ViewModel() {
 
     // Estado actual del paso del formulario
     private val _pasoActual = mutableStateOf(PasoFormularioReceta.PREPARACION)
@@ -33,7 +49,6 @@ class CrearRecetaViewModel : ViewModel() {
     private val _porciones = mutableStateOf(1)
     val porciones: State<Int> = _porciones
 
-    // Paso 3: Portada
     private val _imagenPortadaUri = mutableStateOf<String?>(null)
     val imagenPortadaUri: State<String?> = _imagenPortadaUri
 
@@ -133,31 +148,66 @@ class CrearRecetaViewModel : ViewModel() {
         }
     }
 
-    fun crearReceta(): Map<String, Any> {
-        val pasosList = pasosPreparacion.map { paso ->
-            mapOf(
-                "proceso" to paso.descripcion,
-                "url" to (paso.mediaUri ?: "")
+    suspend fun enviarReceta(): Boolean {
+        val portadaUri = imagenPortadaUri.value ?: return false
+        val titulo = tituloReceta.value
+        val tiempoTotal = obtenerTiempoTotalEnMinutos()
+
+        if (titulo.isBlank() || tiempoTotal <= 0) return false
+
+        return try {
+            println("🔐 Token obtenido correctamente")
+            val token = userPreferences.getAccessToken().firstOrNull() ?: return false
+
+            println("📁 Intentando subir imagen con URI: $portadaUri")
+            val urlPortada = recetaRepository.subirImagen(appContext, Uri.parse(portadaUri), token)
+                ?: return false
+            println("✅ Imagen portada subida con éxito: $urlPortada")
+
+            // 👉 Subir media de pasos si corresponde
+            val pasosSubidos = pasosPreparacion.map { paso ->
+                val uriMedia = paso.mediaUri
+                val url = if (!uriMedia.isNullOrBlank() && uriMedia.startsWith("content://")) {
+                    println("🎞️ Subiendo media del paso: ${paso.descripcion}")
+                    recetaRepository.subirImagen(appContext, Uri.parse(uriMedia), token)
+                } else {
+                    uriMedia // ya es una URL o vacío
+                }
+
+                paso.copy(mediaUri = url) // reemplazamos el URI por la URL real
+            }
+
+            val recetaDTO = mapViewModelToDto(
+                titulo = titulo,
+                portadaUrl = urlPortada,
+                tiempoEnMinutos = tiempoTotal,
+                ingredientes = ingredientes,
+                pasos = pasosSubidos
             )
+
+            val resultado = recetaRepository.crearReceta(recetaDTO)
+            println("📤 Resultado al enviar receta: $resultado")
+            resultado
+        } catch (e: Exception) {
+            println("❌ Excepción en enviarReceta: ${e.message}")
+            e.printStackTrace()
+            false
         }
-
-        val ingredientesList = ingredientes.map { ingrediente ->
-            mapOf(
-                "nombre" to ingrediente.nombre,
-                "medida" to ingrediente.cantidad,
-                "nombreMedida" to ingrediente.unidad.name.lowercase() // ejemplo: "gramos"
-            )
-        }
-
-        val recetaMap = mapOf(
-            "title" to tituloReceta.value,
-            "image" to (imagenPortadaUri.value ?: ""),
-            "ingredientes" to ingredientesList,
-            "pasos" to pasosList,
-            "tiempoReceta" to obtenerTiempoTotalEnMinutos()
-        )
-
-        return recetaMap
     }
 
+    fun reiniciarFormulario() {
+        _pasoActual.value = PasoFormularioReceta.PREPARACION
+
+        _ingredientes.clear()
+        _ingredientes.add(IngredienteUI()) // agregamos uno por defecto
+
+        _pasosPreparacion.clear()
+        _pasosPreparacion.add(PasoPreparacionUI())
+
+        _imagenPortadaUri.value = null
+        _tituloReceta.value = ""
+        _tiempoHoras.value = 0
+        _tiempoMinutos.value = 0
+        _porciones.value = 1
+    }
 }

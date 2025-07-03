@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.navigation.Screen
+import androidx.compose.material3.TextButton
+
 import com.example.tpo_desa_1.viewmodel.LoginResult
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import androidx.compose.runtime.getValue
@@ -119,11 +121,18 @@ fun LoginSessionScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Contraseña", style = MaterialTheme.typography.labelSmall)
-                Text(
-                    "¿Olvidaste tu contraseña?",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                TextButton(
+                    onClick = {
+                        navController.navigate("password_reset")
+                    },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        "¿Olvidaste tu contraseña?",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
 
             OutlinedTextField(

@@ -9,6 +9,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
+import com.example.tpo_desa_1.ui.screens.CrearRecetaScreen
+import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
+import com.example.tpo_desa_1.ui.screens.PasswordResetScreen
+import com.example.tpo_desa_1.ui.screens.VerifyCodeScreen
+import com.example.tpo_desa_1.ui.screens.NewPasswordScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.tpo_desa_1.ui.screens.*
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import androidx.compose.material.icons.Icons
@@ -109,5 +116,31 @@ fun AppNavigation(
         composable("crear_receta") {
             CrearRecetaScreen(navController)
         }
+
+        composable("password_reset") {
+            PasswordResetScreen(navController = navController)
+        }
+
+        composable("verify_code/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            VerifyCodeScreen(navController = navController, email = email)
+        }
+
+        composable(
+            route = "new_password/{email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            NewPasswordScreen(navController = navController, email = email)
+        }
+
+        composable(
+            "new_password/{email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            NewPasswordScreen(navController, email)
+        }
+
     }
 }

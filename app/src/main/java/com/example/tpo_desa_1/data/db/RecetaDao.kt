@@ -36,6 +36,9 @@ interface RecetaDao {
     @Query("SELECT * FROM recetas WHERE id = :id")
     suspend fun obtenerPorId(id: Int): Receta?
 
+    @Query("SELECT * FROM recetas WHERE id IN (:ids)")
+    suspend fun obtenerPorIds(ids: List<Int>): List<Receta>
+
     // Guardado de recetas futuras (comentado por ahora)
     // @Query("SELECT * FROM recetas WHERE emailUsuario = :email")
     // suspend fun obtenerRecetasGuardadas(email: String): List<Receta>

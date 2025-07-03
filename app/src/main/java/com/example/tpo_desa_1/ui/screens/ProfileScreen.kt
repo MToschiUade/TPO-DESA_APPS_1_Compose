@@ -113,8 +113,9 @@ fun ProfileHeader(alias: String) {
 
         Spacer(Modifier.height(8.dp))
 
-        Text(alias, style = MaterialTheme.typography.titleMedium)
-        Text("Chef Amateur", style = MaterialTheme.typography.bodySmall)
+        //Text(usuario.alias, style = MaterialTheme.typography.titleMedium)
+        // Todo UPDATE USER PREFERENCE
+
 
         Spacer(Modifier.height(8.dp))
 
@@ -124,6 +125,7 @@ fun ProfileHeader(alias: String) {
             Icon(Icons.Default.Email, contentDescription = "Email")
         }
     }
+    Spacer(Modifier.height(15.dp))
 }
 
 @Composable
@@ -140,14 +142,23 @@ fun RecipeStats(recetasCreadas: List<Receta>) {
             Text("Recetas subidas")
         }
     }
+
 }
 
 @Composable
+
+/*fun AboutSection(usuario: Usuario) {*/
+/*TODO Revisar cambiar la firma para en lugar de usar el dataclass usuario por "user preference" que es la clase que ahora persiste la data del user*/
+    
 fun AboutSection(email: String) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("About", style = MaterialTheme.typography.titleMedium)
-        Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit...")
+        Text("Acerca de: ", style = MaterialTheme.typography.titleMedium)
 
+/*        Spacer(Modifier.height(10.dp))
+        InfoRow(Icons.Default.Place, usuario.pais)
+        InfoRow(Icons.Default.Email, usuario.email)
+        InfoRow(Icons.Default.Person, "${usuario.nombre} ${usuario.apellido}")
+        InfoRow(Icons.Default.Verified, "Cuenta ${usuario.status}")*/
         InfoRow(Icons.Default.Place, "Argentina")
         InfoRow(Icons.Default.Email, email)
         InfoRow(Icons.Default.Work, "UX Designer at Ratatouille")

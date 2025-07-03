@@ -54,6 +54,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Comentario
+import com.example.tpo_desa_1.data.model.Ingrediente
 import com.example.tpo_desa_1.data.persistence.UserPreferences
 import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModel
 import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModelFactory
@@ -82,9 +83,13 @@ fun RecetaDetailScreen(
     val comentarioDao = db.comentarioDao()
     val pasoDao = db.pasoRecetaDao()
 
+
+    val ingredienteDao = db.ingredienteDao() // ✅ nuevo
+
     val detallesRepository = remember {
-        DetallesRecetaRepository(comentarioDao, pasoDao)
+        DetallesRecetaRepository(comentarioDao, pasoDao, ingredienteDao)
     }
+
 
 
     val detallesViewModel: DetallesRecetaViewModel = viewModel(
@@ -120,7 +125,7 @@ fun RecetaDetailScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    IngredientesSection()
+                    IngredientesSection(ingredientes = detallesViewModel.ingredientes)
                 }
 
                 item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -258,24 +263,13 @@ private fun EncabezadoReceta(    receta: Receta,
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
-private fun IngredientesSection() {
-    val ingredientes = listOf(
-        Triple("1", "Kilo", "Carne"),
-        Triple("4", "Unidad", "Tortilla"),
-        Triple("1", "Unidad", "Pimiento"),
-        Triple("5", "Unidad", "Limón"),
-        Triple("1", "Rama", "Cilantro")
-    )
-
+private fun IngredientesSection(ingredientes: List<Ingrediente>) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = "Ingredientes",
-            style = MaterialTheme.typography.titleMedium
-        )
+        Text("Ingredientes", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(ingredientes) { (cantidad, unidad, nombre) ->
+            items(ingredientes) { ingrediente ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
@@ -283,12 +277,12 @@ private fun IngredientesSection() {
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
                     Text(
-                        text = "$cantidad $unidad",
+                        text = "${ingrediente.medida} ${ingrediente.nombreMedida}",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
                     Text(
-                        text = nombre,
+                        text = ingrediente.nombre,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.DarkGray
                     )
@@ -297,8 +291,6 @@ private fun IngredientesSection() {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Sección porciones (solo visual por ahora)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Porciones", modifier = Modifier.padding(end = 8.dp))
             Row(
@@ -314,6 +306,7 @@ private fun IngredientesSection() {
         }
     }
 }
+
 
 @Composable
 fun PasoCard(paso: PasoReceta) {

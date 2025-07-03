@@ -9,7 +9,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tpo_desa_1.navigation.Screen
 
 @Composable
-fun BottomNavBar(navController: NavController) {
+fun BottomNavBar(
+    navController: NavController,
+    isLoggedIn: Boolean
+) {
     val screens = listOf(
         Screen.Home,
         Screen.Recipes,
@@ -25,26 +28,26 @@ fun BottomNavBar(navController: NavController) {
         val currentRoute = navBackStackEntry?.destination?.route
 
         screens.forEach { screen ->
+            val isProtected = screen in listOf(Screen.Recipes, Screen.Saved, Screen.Profile)
+
             NavigationBarItem(
                 selected = currentRoute == screen.route,
                 onClick = {
                     if (currentRoute != screen.route) {
-                        // TODO Revisar que vamos a querer hacer con esta navegación la comentada es la que mostre en el video
-//                        navController.navigate(screen.route) {
-//                            popUpTo(Screen.Home.route) { saveState = true }
-//                            launchSingleTop = true
-//                            restoreState = true
-//                        }
-
-                        // Esta es que si tocas inicio u otra pantalla no te mantiene la receta que estabas viendo
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                        if (isProtected && !isLoggedIn) {
+                            println("🔐 BottomNav: acceso protegido a ${screen.route} → redirigiendo a login")
+                            navController.navigate(Screen.SessionSwitch.route) {
+                                launchSingleTop = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
+                        } else {
+                            navController.navigate(screen.route) {
+                                popUpTo(Screen.Home.route) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
-
                     }
                 },
                 icon = {
@@ -59,3 +62,4 @@ fun BottomNavBar(navController: NavController) {
         }
     }
 }
+

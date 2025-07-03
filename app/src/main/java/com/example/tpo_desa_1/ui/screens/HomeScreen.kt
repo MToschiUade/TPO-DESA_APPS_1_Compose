@@ -18,7 +18,6 @@ import com.example.tpo_desa_1.ui.components.RecommendationCarousel
 import com.example.tpo_desa_1.ui.components.RecipeListSection
 import com.example.tpo_desa_1.viewmodel.RecetaViewModel
 import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
-import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.data.db.AppDatabase
 import androidx.compose.ui.graphics.Color
 import com.example.tpo_desa_1.repository.UsuarioRepository
@@ -26,21 +25,23 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    sessionViewModel: SessionViewModel
+) {
     val context = LocalContext.current
-    val recetaDao = AppDatabase.getDatabase(context).recetaDao()
-    val recetaRepository = remember { RecetaRepository(recetaDao) }
-    val viewModel: RecetaViewModel = viewModel(factory = RecetaViewModelFactory(recetaRepository))
-    val recetasAprobadas by viewModel.recetasAprobadas
-    val recetasAprobadasRecientes by viewModel.recetasAprobadasRecientes
+    val viewModel: RecetaViewModel = viewModel(
+        factory = RecetaViewModelFactory(context)
+    )
 
-    val usuarioDao = AppDatabase.getDatabase(context).usuarioDao()
-    val usuarioRepository = remember { UsuarioRepository(usuarioDao) }
-    val sessionViewModel: SessionViewModel = viewModel(factory = SessionViewModelFactory(usuarioRepository))
+    val recetasAprobadasRecientes by viewModel.recetasAprobadasRecientes
+    val recetasAprobadas by viewModel.recetasAprobadas
+
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
 
     var search by remember { mutableStateOf("") }
 
-    // Orden
+    // Ordenamiento
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Nombre") }
     val opcionesOrden = listOf("Nombre", "Más nuevas", "Usuario")
@@ -52,7 +53,9 @@ fun HomeScreen(navController: NavController) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavBar(navController) },
+        bottomBar = {
+            BottomNavBar(navController = navController, isLoggedIn = isLoggedIn)
+        },
         contentWindowInsets = WindowInsets.systemBars
     ) { innerPadding ->
         Column(
@@ -78,16 +81,16 @@ fun HomeScreen(navController: NavController) {
                     )
                 )
 
-                Box(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clickable { expanded = true }
+                        modifier = Modifier.clickable { expanded = true }
                     ) {
-                        Text(
-                            text = "Ordenar por: $selectedOption",
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
+                        Text("Ordenar por: $selectedOption", modifier = Modifier.padding(end = 8.dp))
                         Icon(Icons.Default.ArrowDropDown, contentDescription = "Expandir menú")
                     }
 

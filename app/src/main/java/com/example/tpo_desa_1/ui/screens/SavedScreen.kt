@@ -19,6 +19,10 @@ import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.ui.components.RecipeListSection
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+
 
 @Composable
 fun SavedScreen(
@@ -27,35 +31,37 @@ fun SavedScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val recetaDao = AppDatabase.getDatabase(context).recetaDao()
-    val recetaRepo = RecetaRepository(recetaDao)
-    val factory = RecetaViewModelFactory(recetaRepo)
-    val recetaViewModel: RecetaViewModel = viewModel(factory = factory)
+    val recetaViewModel: RecetaViewModel = viewModel(
+        factory = RecetaViewModelFactory(context)
+    )
 
-    val usuario = sessionViewModel.usuarioLogueado.value
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
+    val alias by sessionViewModel.alias.collectAsState()
+
     val recetasGuardadas by recetaViewModel.recetasGuardadas
     var search by remember { mutableStateOf("") }
 
-    LaunchedEffect(usuario) {
-        usuario?.let {
-            recetaViewModel.cargarRecetasGuardadas(it.recetasGuardadas)
+    // ❗ Pendiente: se asume que el ViewModel puede cargar recetas guardadas por alias
+    LaunchedEffect(alias) {
+        alias?.let {
+            //recetaViewModel.cargarRecetasGuardadas(it) // <-- debe aceptar alias en vez de una lista
+            // TODO Falta pendiente de implementar el endpoint para obtener recetas guardadas y su integracion
         }
     }
 
-    ScreenWithBottomBar(navController = navController) { innerPadding ->
+    ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            if (usuario == null) {
+            if (!isLoggedIn) {
                 Text("Iniciá sesión para ver tus recetas guardadas.")
             } else {
                 if (recetasGuardadas.isEmpty()) {
-                    Text("Todavía no guardaste recetas.")
+                    Text("Todavía no guardaste recetas.") // ❗ Pendiente: ver cómo obtener recetas guardadas reales desde backend
                 } else {
-                    // Título con cantidad
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -69,7 +75,6 @@ fun SavedScreen(
                         )
                     }
 
-                    // Campo de búsqueda con estilo del home
                     OutlinedTextField(
                         value = search,
                         onValueChange = { search = it },
@@ -91,16 +96,13 @@ fun SavedScreen(
                             focusedBorderColor = Color(0xFF00A86B),
                             unfocusedContainerColor = Color(0xFFF8F8F8),
                             focusedContainerColor = Color(0xFFFFFFFF)
-
                         )
                     )
 
-                    // Filtrar recetas
                     val recetasFiltradas = recetasGuardadas.filter {
                         it.nombre.contains(search, ignoreCase = true)
                     }
 
-                    // Mostrar recetas
                     RecipeListSection(
                         recetas = recetasFiltradas,
                         titulo = "",

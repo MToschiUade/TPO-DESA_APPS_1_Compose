@@ -1,30 +1,79 @@
 package com.example.tpo_desa_1.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import com.example.tpo_desa_1.data.model.Usuario
 import com.example.tpo_desa_1.repository.UsuarioRepository
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+class SessionViewModel(
+    application: Application,
+    private val usuarioRepository: UsuarioRepository
+) : AndroidViewModel(application) {
 
-class SessionViewModel(private val usuarioRepository: UsuarioRepository) : ViewModel() {
+    private val _loginState = MutableStateFlow<LoginResult>(LoginResult.Idle)
+    val loginState: StateFlow<LoginResult> = _loginState.asStateFlow()
 
-    private val _usuarioLogueado = mutableStateOf<Usuario?>(null)
-    val usuarioLogueado: State<Usuario?> = _usuarioLogueado
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
+    private val _accessToken = MutableStateFlow<String?>(null)
+    val accessToken: StateFlow<String?> = _accessToken.asStateFlow()
+
+    private val _alias = MutableStateFlow<String?>(null)
+    val alias: StateFlow<String?> = _alias.asStateFlow()
+
+    private val _email = MutableStateFlow<String?>(null)
+    val email: StateFlow<String?> = _email.asStateFlow()
+
+    init {
+        // Escuchar cambios en DataStore
+        viewModelScope.launch {
+            usuarioRepository.getAccessToken().collect {
+                _accessToken.value = it
+                _isLoggedIn.value = !it.isNullOrBlank()
+            }
+        }
+
+        viewModelScope.launch {
+            usuarioRepository.getAlias().collect {
+                _alias.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            usuarioRepository.getEmail().collect {
+                _email.value = it
+            }
+        }
+    }
 
     fun login(identificador: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val usuario = usuarioRepository.login(identificador, password)
-            _usuarioLogueado.value = usuario
-            onResult(usuario != null)
+            _loginState.value = LoginResult.Loading
+            val success = usuarioRepository.login(identificador, password)
+            if (success) {
+                _loginState.value = LoginResult.Success("OK")
+            } else {
+                _loginState.value = LoginResult.Error("Login fallido")
+            }
+            onResult(success)
         }
     }
 
     fun logout() {
-        _usuarioLogueado.value = null
-    }
+        viewModelScope.launch {
+            println("👋 Ejecutando logout desde SessionViewModel")
+            usuarioRepository.logout()
 
+            // Limpiar estado local también
+            _accessToken.value = null
+            _isLoggedIn.value = false
+            _alias.value = null
+            _email.value = null
+            _loginState.value = LoginResult.Idle
+        }
+    }
 }
+

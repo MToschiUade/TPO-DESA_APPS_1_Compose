@@ -24,8 +24,6 @@ import coil.compose.AsyncImage
 import com.example.tpo_desa_1.data.db.AppDatabase
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.repository.DetallesRecetaRepository
-import com.example.tpo_desa_1.repository.RecetaRepository
-import com.example.tpo_desa_1.ui.components.PasoRecetaCard
 // TODO limpiar código import
 import com.example.tpo_desa_1.viewmodel.RecetaViewModel
 import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
@@ -33,7 +31,6 @@ import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.ui.components.formatTiempo
 import com.example.tpo_desa_1.viewmodel.DetallesRecetaViewModel
 import com.example.tpo_desa_1.viewmodel.DetallesRecetaViewModelFactory
-import com.example.tpo_desa_1.ui.components.ComentarioCard
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.StarBorder
@@ -42,7 +39,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.ui.text.font.FontWeight
 import com.example.tpo_desa_1.data.model.PasoReceta
-import com.google.accompanist.flowlayout.FlowRow
 // TODO limpiar código import
 
 import androidx.compose.ui.graphics.Brush
@@ -55,14 +51,11 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.res.painterResource
 import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Comentario
 import java.text.SimpleDateFormat
 import java.util.*
-
-import androidx.compose.material.icons.filled.Delete
 
 @Composable
 fun RecetaDetailScreen(
@@ -71,20 +64,19 @@ fun RecetaDetailScreen(
     navController: NavController
 ) {
     val context = LocalContext.current
+    val recetaViewModel: RecetaViewModel = viewModel(
+        factory = RecetaViewModelFactory(context)
+    )
+
     val db = AppDatabase.getDatabase(context)
 
-    val recetaDao = db.recetaDao()
     val comentarioDao = db.comentarioDao()
     val pasoDao = db.pasoRecetaDao()
 
-    val recetaRepository = remember { RecetaRepository(recetaDao) }
     val detallesRepository = remember {
         DetallesRecetaRepository(comentarioDao, pasoDao)
     }
 
-    val recetaViewModel: RecetaViewModel = viewModel(
-        factory = RecetaViewModelFactory(recetaRepository)
-    )
 
     val detallesViewModel: DetallesRecetaViewModel = viewModel(
         factory = DetallesRecetaViewModelFactory(detallesRepository)
@@ -98,7 +90,10 @@ fun RecetaDetailScreen(
         detallesViewModel.cargarDatos(recetaId)
     }
 
-    ScreenWithBottomBar(navController = navController) { padding ->
+    ScreenWithBottomBar(
+        navController = navController,
+        isLoggedIn = usuarioActual != null
+    ) { padding ->
         receta?.let { r ->
             LazyColumn(
                 modifier = Modifier
@@ -137,10 +132,7 @@ fun RecetaDetailScreen(
                 item {
                     ComentariosSection(
                         comentarios = comentarios,
-                        usuarioActual = usuarioActual,
-/*                        onEliminar = { id ->
-                            detallesViewModel.eliminarComentario(id, usuarioActual) {}
-                        }*/
+                        usuarioActual = usuarioActual
                     )
                 }
 

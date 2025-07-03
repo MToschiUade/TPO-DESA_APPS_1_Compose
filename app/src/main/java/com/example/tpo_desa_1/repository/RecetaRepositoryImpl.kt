@@ -65,6 +65,21 @@ class RecetaRepositoryImpl(
         }
     }
 
+    override suspend fun obtenerCantidadRecetas(token: String): Int {
+        return try {
+            val response = remoteDataSource.getCantidadRecetas(token)
+
+            if (response.isSuccessful) {
+                response.body() ?: 0
+            } else {
+                0
+            }
+        } catch (e: Exception) {
+
+            0
+        }
+    }
+
     override suspend fun obtenerRecetasAprobadasRecientes(): List<Receta> {
         return try {
             val recetasDto = remoteDataSource.obtenerRecientesAprobadasDTO()

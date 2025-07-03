@@ -23,6 +23,8 @@ class RecetaViewModel(
     val recetasDelUsuario: State<List<Receta>> = _recetasDelUsuario
     private val _recetasGuardadas = mutableStateOf<List<Receta>>(emptyList())
     val recetasGuardadas: State<List<Receta>> = _recetasGuardadas
+    private val _cantidadRecetas = mutableStateOf(0)
+    val cantidadRecetas: State<Int> = _cantidadRecetas
 
     init {
         cargarRecetas()
@@ -72,7 +74,16 @@ class RecetaViewModel(
         }
     }
 
-
+    fun cantidadRecetas(token: String) {
+        viewModelScope.launch {
+            try {
+                val cantidad = recetaRepository.obtenerCantidadRecetas(token) // esta función la tenés que implementar en el repo
+                _cantidadRecetas.value = cantidad
+            } catch (e: Exception) {
+                _cantidadRecetas.value = 0
+            }
+        }
+    }
 
     /*    fun cargarRecetasGuardadas(ids: List<Int>) {
             viewModelScope.launch {

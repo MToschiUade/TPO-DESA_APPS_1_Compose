@@ -98,4 +98,8 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<RecetaGuardadaDTO>
 
+    @GET("users/cantrecetas")
+    suspend fun getCantidadRecetas(
+        @Header("Authorization") token: String
+    ): Response<Int>
 }

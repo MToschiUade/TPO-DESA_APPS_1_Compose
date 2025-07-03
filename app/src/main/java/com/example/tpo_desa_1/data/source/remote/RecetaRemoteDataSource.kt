@@ -136,5 +136,9 @@ class RecetaRemoteDataSource(
         }
     }
 
+    suspend fun getCantidadRecetas(token: String): Response<Int> {
+        return api.getCantidadRecetas("Bearer $token")
+    }
+
 
 }

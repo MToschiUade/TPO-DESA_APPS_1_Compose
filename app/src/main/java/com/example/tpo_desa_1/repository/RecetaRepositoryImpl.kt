@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import com.example.tpo_desa_1.data.mapper.toModel
+import com.example.tpo_desa_1.data.mapper.*
 
 class RecetaRepositoryImpl(
     private val localDataSource: RecetaLocalDataSource,
@@ -105,6 +105,22 @@ class RecetaRepositoryImpl(
         return remoteDataSource.subirImagen(context, uri, token)
     }
 
+    override suspend fun obtenerMisRecetas(token: String): List<Receta> {
+        return try {
+            val misRecetasDto = remoteDataSource.obtenerMisRecetas(token)
+            val triples = misRecetasDto.map { it.toModel() }
+
+            val recetas = triples.map { it.first }
+            val pasos = triples.flatMap { it.second }
+            val ingredientes = triples.flatMap { it.third }
+
+            localDataSource.insertarRecetasConDependencias(recetas, pasos, ingredientes)
+
+            recetas
+        } catch (e: Exception) {
+            localDataSource.obtenerPorUsuario("YO") // opcional: usar un alias especial, o dejar vacío
+        }
+    }
 
 }
 

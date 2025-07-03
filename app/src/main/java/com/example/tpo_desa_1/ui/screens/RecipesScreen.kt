@@ -37,9 +37,12 @@ fun RecipesScreen(
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
     val recetas = recetaViewModel.recetasDelUsuario.value
 
-    LaunchedEffect(alias) {
-        alias?.let { recetaViewModel.cargarRecetasDelUsuario(it) }
+    val token by sessionViewModel.accessToken.collectAsState(initial = null)
+
+    LaunchedEffect(token) {
+        token?.let { recetaViewModel.cargarMisRecetas(it) }
     }
+
 
     ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
     Column(

@@ -36,18 +36,20 @@ fun SavedScreen(
     )
 
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
-    val alias by sessionViewModel.alias.collectAsState()
 
     val recetasGuardadas by recetaViewModel.recetasGuardadas
     var search by remember { mutableStateOf("") }
 
+
     // ❗ Pendiente: se asume que el ViewModel puede cargar recetas guardadas por alias
-    LaunchedEffect(alias) {
-        alias?.let {
-            //recetaViewModel.cargarRecetasGuardadas(it) // <-- debe aceptar alias en vez de una lista
-            // TODO Falta pendiente de implementar el endpoint para obtener recetas guardadas y su integracion
+    val token by sessionViewModel.accessToken.collectAsState()
+
+    LaunchedEffect(isLoggedIn, token) {
+        if (isLoggedIn && !token.isNullOrBlank()) {
+            recetaViewModel.cargarRecetasGuardadas(token!!)
         }
     }
+
 
     ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
         Column(

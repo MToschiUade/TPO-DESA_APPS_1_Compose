@@ -19,7 +19,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import android.net.Uri
-
+import com.google.gson.Gson
 
 // Enum que representa los pasos del formulario
 enum class PasoFormularioReceta {
@@ -184,6 +184,10 @@ class CrearRecetaViewModel(
                 ingredientes = ingredientes,
                 pasos = pasosSubidos
             )
+
+            val gson = Gson()
+            val jsonDebug = gson.toJson(recetaDTO)
+            println("🧾 Receta a enviar:\n$jsonDebug")
 
             val resultado = recetaRepository.crearReceta(recetaDTO)
             println("📤 Resultado al enviar receta: $resultado")

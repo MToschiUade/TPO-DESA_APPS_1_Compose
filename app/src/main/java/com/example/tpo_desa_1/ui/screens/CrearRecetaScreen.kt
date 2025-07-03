@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import android.net.Uri
 import android.widget.MediaController
+import android.widget.Toast
 import android.widget.VideoView
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +42,16 @@ fun CrearRecetaScreen(
     viewModel: CrearRecetaViewModel,
     apiService: ApiService
 ) {
+    // 🧹 Limpiar formulario al salir del Composable
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.reiniciarFormulario()
+        }
+    }
+
     val paso = viewModel.pasoActual.value
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -57,6 +67,7 @@ fun CrearRecetaScreen(
                 }
             )
         }
+
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -79,7 +90,9 @@ fun CrearRecetaScreen(
                 }
             }
 
-            // 🔘 Botones de navegación
+            val coroutineScope = rememberCoroutineScope()
+            val context = LocalContext.current
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,7 +104,47 @@ fun CrearRecetaScreen(
                         Button(onClick = { viewModel.retrocederPaso() }) {
                             Text("Volver")
                         }
-                        Button(onClick = { viewModel.avanzarPaso() }) {
+
+                        Button(onClick = {
+                            if (paso == PasoFormularioReceta.PORTADA) {
+                                // Validación antes de enviar
+                                val uri = viewModel.imagenPortadaUri.value
+                                val titulo = viewModel.tituloReceta.value
+                                val minutosTotales = viewModel.tiempoHoras.value * 60 + viewModel.tiempoMinutos.value
+
+                                if (uri.isNullOrBlank()) {
+                                    Toast.makeText(context, "⚠️ Debes seleccionar una imagen de portada", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+                                if (titulo.isBlank()) {
+                                    Toast.makeText(context, "⚠️ El título de la receta es obligatorio", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+                                if (minutosTotales <= 0) {
+                                    Toast.makeText(context, "⚠️ El tiempo estimado debe ser mayor a 0", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+
+                                // Enviar receta
+                                coroutineScope.launch {
+                                    val resultado = viewModel.enviarReceta()
+                                    println(resultado)
+                                    if (resultado) {
+                                        Toast
+                                            .makeText(context, "🎉 Receta creada con éxito", Toast.LENGTH_SHORT)
+                                            .show()
+                                        viewModel.reiniciarFormulario() // 🧹 limpia
+                                        navController.popBackStack()    // vuelve a pantalla anterior
+                                    } else {
+                                        Toast
+                                            .makeText(context, "❌ Error al enviar la receta", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                }
+                            } else {
+                                viewModel.avanzarPaso()
+                            }
+                        }) {
                             Text("Continuar")
                         }
                     }
@@ -508,25 +561,6 @@ fun PasoPortada(
                 }
             }
         }
-    }
-
-    Button(
-        onClick = {
-            coroutineScope.launch {
-                val resultado = viewModel.enviarReceta(apiService)
-                if (resultado) {
-                    println("🎉 Receta enviada exitosamente")
-                    // Podés redirigir a otra pantalla si querés acá
-                } else {
-                    println("❌ Error al enviar la receta")
-                }
-            }
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp)
-    ) {
-        Text("✅ Enviar receta")
     }
 }
 

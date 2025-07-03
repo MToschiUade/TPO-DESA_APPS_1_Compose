@@ -75,7 +75,11 @@ class MainActivity : ComponentActivity() {
             override suspend fun obtenerPorNombre(nombre: String): Receta? = null
         }) // tengo q tenerlo a mano hasta q se integre y se use una receta real
         val recetaRepository = RecetaRepositoryImpl(recetaLocalDataSource, recetaRemoteDataSource)
-        val crearRecetaViewModelFactory = CrearRecetaViewModelFactory(recetaRepository)
+        val crearRecetaViewModelFactory = CrearRecetaViewModelFactory(
+            recetaRepository,
+            userPreferences,
+            applicationContext
+        )
         val crearRecetaViewModel = ViewModelProvider(this, crearRecetaViewModelFactory)[CrearRecetaViewModel::class.java]
 
         setContent {

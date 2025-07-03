@@ -15,30 +15,4 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class RecetaRemoteRepository {
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(AppConfig.BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    private val api = retrofit.create(ApiService::class.java)
-
-    suspend fun subirImagen(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
-        val contentResolver = context.contentResolver
-        val inputStream = contentResolver.openInputStream(uri)
-            ?: throw IllegalArgumentException("No se pudo abrir la imagen")
-
-        val bytes = inputStream.readBytes()
-        val requestBody = bytes.toRequestBody("image/*".toMediaTypeOrNull())
-        val imagePart = MultipartBody.Part.createFormData(
-            name = "image",
-            filename = "receta.jpg",
-            body = requestBody
-        )
-
-        api.uploadImage(imagePart)
-    }
-
-    suspend fun enviarReceta(dto: RecetaDTO) = withContext(Dispatchers.IO) {
-        api.postReceta(dto)
-    }
 }

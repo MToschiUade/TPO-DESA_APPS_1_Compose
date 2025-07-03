@@ -11,7 +11,7 @@ fun RecetaDTO.toModel(): Receta {
         tiempo = this.tiempoReceta,
         estado = "pendiente", // No viene en DTO
         fechaRevision = null, // No viene, y es String en DTO
-        imagenPortadaUrl = this.image,
+        imagenPortadaUrl = this.imagePortada,
         autor = "desconocido" // No viene en DTO
     )
 }
@@ -19,7 +19,7 @@ fun RecetaDTO.toModel(): Receta {
 fun Receta.toDto(): RecetaDTO {
     return RecetaDTO(
         title = this.nombre,
-        image = this.imagenPortadaUrl,
+        imagePortada = this.imagenPortadaUrl,
         ingredientes = emptyList(), // Más adelante podés mapearlos
         pasos = emptyList(),
         fecha = "", // Podés formatear la fecha si querés

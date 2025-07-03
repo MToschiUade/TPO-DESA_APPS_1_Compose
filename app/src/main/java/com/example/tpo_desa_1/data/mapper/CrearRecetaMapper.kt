@@ -11,7 +11,7 @@ fun mapViewModelToDto(
 ): RecetaDTO {
     return RecetaDTO(
         title = titulo,
-        image = portadaUrl,
+        imagePortada = portadaUrl,
         tiempoReceta = tiempoEnMinutos,
         fecha = "", // no usado
         ingredientes = ingredientes.map {

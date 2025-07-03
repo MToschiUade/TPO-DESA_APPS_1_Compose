@@ -10,26 +10,41 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.mapper.toModel
+import com.example.tpo_desa_1.utils.uriToFile
+import okhttp3.RequestBody.Companion.asRequestBody
 
 class RecetaRemoteDataSource(
     private val api: ApiService
 ) {
+    suspend fun subirImagen(context: Context, uri: Uri, token: String): String? = withContext(Dispatchers.IO) {
+        println("📁 Intentando subir imagen con URI: $uri")
 
-    suspend fun subirImagen(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
-        val contentResolver = context.contentResolver
-        val inputStream = contentResolver.openInputStream(uri)
-            ?: throw IllegalArgumentException("No se pudo abrir la imagen")
+        val file = uriToFile(context, uri) ?: return@withContext null
+        println("📂 Archivo generado: ${file.name}, tamaño: ${file.length()} bytes")
 
-        val bytes = inputStream.readBytes()
-        val requestBody = bytes.toRequestBody("image/*".toMediaTypeOrNull())
-        val imagePart = MultipartBody.Part.createFormData(
-            name = "image",
-            filename = "receta.jpg",
-            body = requestBody
-        )
+        val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val imagePart = MultipartBody.Part.createFormData("image", file.name, requestBody)
 
-        api.uploadImage(imagePart)
+        return@withContext try {
+            val response = api.subirImagen(imagePart, "Bearer $token")
+
+            if (response.isSuccessful) {
+                val url = response.body()?.string()?.trim()
+                println("🌐 URL recibida: $url")
+                url
+            } else {
+                println("⚠️ Error HTTP: ${response.code()} - ${response.message()}")
+                null
+            }
+        } catch (e: Exception) {
+            println("❌ Excepción al subir imagen: ${e.message}")
+            null
+        }
     }
+
+
+
+
 
     suspend fun enviarReceta(dto: RecetaDTO): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {

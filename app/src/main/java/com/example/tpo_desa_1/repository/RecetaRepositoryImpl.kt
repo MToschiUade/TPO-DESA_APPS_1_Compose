@@ -1,5 +1,6 @@
 package com.example.tpo_desa_1.repository
 
+import android.util.Log
 import com.example.tpo_desa_1.config.AppConfig
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.source.local.RecetaLocalDataSource
@@ -70,7 +71,6 @@ class RecetaRepositoryImpl(
         return try {
             val recetasDto = remoteDataSource.obtenerAprobadasAprobadasDTO()
 
-
             val triples = recetasDto.map { it.toModel() }
             val recetas = triples.map { it.first }
             val pasos = triples.flatMap { it.second }
@@ -80,8 +80,11 @@ class RecetaRepositoryImpl(
 
             recetas
         } catch (e: Exception) {
-            localDataSource.obtenerAprobadas()
+            val recetasLocales = localDataSource.obtenerAprobadas()
+            Log.d("RoomFallback", "Se usaron ${recetasLocales.size} recetas desde Room (BE falló)")
+            recetasLocales
         }
     }
+
 }
 

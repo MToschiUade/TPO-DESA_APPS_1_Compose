@@ -25,7 +25,10 @@ import com.example.tpo_desa_1.navigation.Screen
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
 import com.example.tpo_desa_1.viewmodel.ProfileViewModel
 import com.example.tpo_desa_1.viewmodel.ProfileViewModelFactory
+import com.example.tpo_desa_1.viewmodel.RecetaViewModel
+import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
+
 @Composable
 fun ProfileScreen(
     navController: NavController,
@@ -33,21 +36,37 @@ fun ProfileScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+
+    // ViewModels
     val factory = ProfileViewModelFactory(context)
     val profileViewModel: ProfileViewModel = viewModel(factory = factory)
 
+    val recetaViewModel: RecetaViewModel = viewModel(
+        factory = RecetaViewModelFactory(context)
+    )
+
+    // Observables
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
     val aliasState = sessionViewModel.alias.collectAsState(initial = null)
     val alias = aliasState.value
     val usuarioDetalle by sessionViewModel.usuarioDetalle.collectAsState()
-
     val recetasCreadas by profileViewModel.recetasCreadas.collectAsState()
+    val token by sessionViewModel.accessToken.collectAsState(initial = null)
+    val cantidadRecetas by recetaViewModel.cantidadRecetas
 
-    // Cargar recetas y detalle del usuario
-    LaunchedEffect(alias) {
+    // Cargar datos al iniciar
+    LaunchedEffect(alias, token) {
+        println("🧪 alias: $alias")
+        println("🧪 token: $token")
+
         alias?.let {
             profileViewModel.cargarRecetasCreadas(it)
             sessionViewModel.loadUsuarioDetalle()
+
+            token?.let {
+                println("✅ Ejecutando cantidadRecetas con token: $it")
+                recetaViewModel.cantidadRecetas(it)
+            }
         }
     }
 
@@ -59,7 +78,8 @@ fun ProfileScreen(
                     recetasCreadas = recetasCreadas,
                     usuarioDetalle = usuarioDetalle,
                     navController = navController,
-                    sessionViewModel = sessionViewModel
+                    sessionViewModel = sessionViewModel,
+                    cantidadRecetas = cantidadRecetas
                 )
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -76,7 +96,8 @@ fun UserProfileSection(
     recetasCreadas: List<Receta>,
     usuarioDetalle: UsuarioDetalle?,
     navController: NavController,
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
+    cantidadRecetas: Int
 ) {
     Column(
         modifier = Modifier
@@ -85,7 +106,7 @@ fun UserProfileSection(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         ProfileHeader(alias = alias, descripcion = usuarioDetalle?.descripcion)
-        RecipeStats(recetasCreadas)
+        RecipeStats(cantidadRecetas)
         AboutSection(usuarioDetalle = usuarioDetalle)
 
         Spacer(Modifier.weight(1f))
@@ -135,7 +156,7 @@ fun ProfileHeader(alias: String, descripcion: String?) {
 
 
 @Composable
-fun RecipeStats(recetasCreadas: List<Receta>) {
+fun RecipeStats(cantidadRecetas: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,7 +165,7 @@ fun RecipeStats(recetasCreadas: List<Receta>) {
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("${recetasCreadas.size}", style = MaterialTheme.typography.titleLarge)
+            Text("$cantidadRecetas", style = MaterialTheme.typography.titleLarge)
             Text("Recetas subidas")
         }
     }
@@ -157,11 +178,40 @@ fun AboutSection(usuarioDetalle: UsuarioDetalle?) {
 
         Spacer(Modifier.height(8.dp))
 
-        Text("Ubicación: ${usuarioDetalle?.ubicacion ?: "Ubicación desconocida"}")
-        Text("Email: ${usuarioDetalle?.email ?: "Email no disponible"}")
-        Text("Nombre completo: ${usuarioDetalle?.nombre ?: "Nombre"} ${usuarioDetalle?.apellido ?: "Apellido"}")
-        Text("Descripción: ${usuarioDetalle?.descripcion ?: "Sin descripción"}")
-        Text("Estado de cuenta: ${if (usuarioDetalle?.status == true) "Activa" else "Inactiva"}")
+        InfoRow(
+            icon = Icons.Default.Place,
+            text = usuarioDetalle?.ubicacion ?: "Ubicación desconocida"
+        )
+        InfoRow(
+            icon = Icons.Default.Email,
+            text = usuarioDetalle?.email ?: "Email no disponible"
+        )
+        InfoRow(
+            icon = Icons.Default.Person,
+            text = "${usuarioDetalle?.nombre ?: "Nombre"} ${usuarioDetalle?.apellido ?: "Apellido"}"
+        )
+        InfoRow(
+            icon = Icons.Default.Description,
+            text = usuarioDetalle?.descripcion ?: "Sin descripción"
+        )
+        InfoRow(
+            icon = Icons.Default.VerifiedUser,
+            text = if (usuarioDetalle?.status == true) "Cuenta activa" else "Cuenta inactiva"
+        )
+    }
+}
+
+@Composable
+fun InfoRow(icon: ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(text)
     }
 }
 

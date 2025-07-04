@@ -81,11 +81,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<MiRecetaDTO>
 
-    @GET("users/alias")
+    @FormUrlEncoded
+    @POST("users/alias")
     suspend fun getUsuarioDetalle(
-        @Header("Authorization") token: String,
-        @Query("alias") alias: String
+        @Field("alias") alias: String
     ): Response<UsuarioDetalleDTO>
+
 
     @PUT("recipes/guardadas/{recipeId}")
     suspend fun toggleFeaturedRecipe(
@@ -98,4 +99,8 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<RecetaGuardadaDTO>
 
+    @GET("users/cantrecetas")
+    suspend fun getCantidadRecetas(
+        @Header("Authorization") token: String
+    ): Response<Int>
 }

@@ -17,5 +17,7 @@ interface RecetaRepository {
     suspend fun obtenerMisRecetas(token: String): List<Receta>
     suspend fun toggleRecetaDestacada(recipeId: Int, token: String): Result<String>
     suspend fun obtenerRecetasGuardadas(token: String): List<Receta>
+    suspend fun obtenerCantidadRecetas(token: String): Int
+
 
 }

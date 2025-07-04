@@ -81,7 +81,7 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<MiRecetaDTO>
 
-    @GET("users/alias")
+    @POST("users/alias")
     suspend fun getUsuarioDetalle(
         @Header("Authorization") token: String,
         @Query("alias") alias: String

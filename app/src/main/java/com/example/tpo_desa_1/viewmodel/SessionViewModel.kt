@@ -84,6 +84,8 @@ class SessionViewModel(
     fun loadUsuarioDetalle() {
         viewModelScope.launch {
             val detalle = usuarioRepository.obtenerUsuarioDetalle()
+            println("🔎 alias actual: ${_alias.value}")
+            println("🔎 token actual: ${_accessToken.value}")
             if (detalle != null) {
                 println("✅ UsuarioDetalle recibido: $detalle")
                 _usuarioDetalle.value = detalle

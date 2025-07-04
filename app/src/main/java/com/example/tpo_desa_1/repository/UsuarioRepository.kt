@@ -67,7 +67,7 @@ class UsuarioRepository(
         }
 
         return try {
-            val response = apiService.getUsuarioDetalle("Bearer $token", alias)
+            val response = apiService.getUsuarioDetalle(alias)
             println("📡 Llamada a /users/alias => código HTTP: ${response.code()}")
 
             if (response.isSuccessful) {

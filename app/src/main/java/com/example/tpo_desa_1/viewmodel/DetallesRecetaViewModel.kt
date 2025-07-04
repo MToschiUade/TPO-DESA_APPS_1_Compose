@@ -24,6 +24,8 @@ class DetallesRecetaViewModel(
 
     fun cargarDatos(recetaId: Int) {
         viewModelScope.launch {
+            comentarios = repository.obtenerComentariosAprobados(recetaId)
+            pasos = repository.obtenerPasos(recetaId)
             _ingredientes.value = repository.obtenerIngredientes(recetaId)
         }
     }

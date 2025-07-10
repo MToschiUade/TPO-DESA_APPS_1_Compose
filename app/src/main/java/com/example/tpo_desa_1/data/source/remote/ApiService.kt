@@ -1,7 +1,9 @@
 package com.example.tpo_desa_1.data.source.remote
 
 import com.example.tpo_desa_1.data.model.RecetaDTO
+import com.example.tpo_desa_1.data.model.request.CalificarRecetaRequest
 import com.example.tpo_desa_1.data.model.request.LoginRequest
+import com.example.tpo_desa_1.data.model.response.ComentarioDTO
 import com.example.tpo_desa_1.data.model.response.LoginResponse
 import com.example.tpo_desa_1.data.model.response.MiRecetaDTO
 import okhttp3.MultipartBody
@@ -103,4 +105,21 @@ interface ApiService {
     suspend fun getCantidadRecetas(
         @Header("Authorization") token: String
     ): Response<Int>
+
+    // ——————————————————————————————
+    // COMENTARIOS
+    // ——————————————————————————————
+
+    @GET("/recipes/ratings/{id}")
+    suspend fun getRatingsByRecipe(
+        @Path("id") recipeId: Int
+    ): List<ComentarioDTO>
+
+
+    @POST("/recipes/rating")
+    suspend fun calificarReceta(
+        @Header("Authorization") token: String,
+        @Body body: CalificarRecetaRequest
+    ): Response<Unit>
+
 }

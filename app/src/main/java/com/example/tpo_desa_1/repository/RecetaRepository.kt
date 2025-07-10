@@ -2,6 +2,7 @@ package com.example.tpo_desa_1.repository
 
 import android.content.Context
 import android.net.Uri
+import com.example.tpo_desa_1.data.model.Comentario
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.model.RecetaDTO
 
@@ -18,6 +19,7 @@ interface RecetaRepository {
     suspend fun toggleRecetaDestacada(recipeId: Int, token: String): Result<String>
     suspend fun obtenerRecetasGuardadas(token: String): List<Receta>
     suspend fun obtenerCantidadRecetas(token: String): Int
-
+    suspend fun obtenerComentariosDeReceta(recetaId: Int): List<Comentario>
+    suspend fun agregarComentarioAReceta(token: String, recetaId: Int, contenido: String, puntaje: Int)
 
 }

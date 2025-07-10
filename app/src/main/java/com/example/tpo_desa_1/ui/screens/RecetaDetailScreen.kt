@@ -57,6 +57,8 @@ import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Comentario
 import com.example.tpo_desa_1.data.model.Ingrediente
 import com.example.tpo_desa_1.data.persistence.UserPreferences
+import com.example.tpo_desa_1.viewmodel.ComentarioViewModel
+import com.example.tpo_desa_1.viewmodel.ComentarioViewModelFactory
 import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModel
 import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModelFactory
 import java.text.SimpleDateFormat
@@ -78,11 +80,15 @@ fun RecetaDetailScreen(
         factory = RecetaViewModelFactory(context)
     )
 
+
     val userPreferences = UserPreferences(context)
     val destacarViewModel: DestacarRecetaViewModel = viewModel(
         factory = DestacarRecetaViewModelFactory(context, userPreferences)
     )
 
+    val comentarioViewModel: ComentarioViewModel = viewModel(
+        factory = ComentarioViewModelFactory(context, userPreferences)
+    )
 
     val db = AppDatabase.getDatabase(context)
 
@@ -103,11 +109,13 @@ fun RecetaDetailScreen(
     )
 
     val receta by recetaViewModel.obtenerPorId(recetaId)
-    val comentarios = detallesViewModel.comentarios
     val pasos = detallesViewModel.pasos
+    val comentarios by comentarioViewModel.comentarios.collectAsState()
+
 
     LaunchedEffect(recetaId) {
         detallesViewModel.cargarDatos(recetaId)
+        comentarioViewModel.cargarComentarios(recetaId)
     }
 
     ScreenWithBottomBar(

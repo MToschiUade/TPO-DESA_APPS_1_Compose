@@ -13,6 +13,7 @@ import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.repository.RecetaRepositoryImpl
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.tpo_desa_1.data.source.remote.ComentarioRemoteDataSource
 
 class DestacarRecetaViewModelFactory(
     private val context: Context,
@@ -36,10 +37,13 @@ class DestacarRecetaViewModelFactory(
                 .create(ApiService::class.java)
 
             val remoteDataSource = RecetaRemoteDataSource(apiService)
+            val comentarioRemoteDataSource = ComentarioRemoteDataSource(apiService)
+
 
             val repository: RecetaRepository = RecetaRepositoryImpl(
                 localDataSource = localDataSource,
-                remoteDataSource = remoteDataSource
+                remoteDataSource = remoteDataSource,
+                comentarioRemoteDataSource = comentarioRemoteDataSource 
             )
 
             @Suppress("UNCHECKED_CAST")

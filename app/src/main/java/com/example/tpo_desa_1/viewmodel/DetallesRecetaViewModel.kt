@@ -30,16 +30,4 @@ class DetallesRecetaViewModel(
         }
     }
 
-
-/*    fun eliminarComentario(id: Int, autor: String?, onSuccess: () -> Unit) {
-        if (autor == null) return  // ⛔ por seguridad: no intentar eliminar sin autor
-        viewModelScope.launch {
-            val eliminado = repository.eliminarComentarioSiAutor(id, autor)
-            if (eliminado) {
-                comentarios = comentarios.filterNot { it.id == id }
-                onSuccess()
-            }
-        }
-    }*/
-
 }

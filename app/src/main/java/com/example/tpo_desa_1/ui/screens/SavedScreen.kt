@@ -22,6 +22,9 @@ import com.example.tpo_desa_1.ui.components.RecipeListSection
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import com.example.tpo_desa_1.viewmodel.PuntajeViewModel
+import com.example.tpo_desa_1.viewmodel.PuntajeViewModelFactory
+import kotlinx.coroutines.flow.map
 
 
 @Composable
@@ -44,11 +47,29 @@ fun SavedScreen(
     // ❗ Pendiente: se asume que el ViewModel puede cargar recetas guardadas por alias
     val token by sessionViewModel.accessToken.collectAsState()
 
+    val puntajeViewModel: PuntajeViewModel = viewModel(
+        factory = PuntajeViewModelFactory(context)
+    )
+
     LaunchedEffect(isLoggedIn, token) {
         if (isLoggedIn && !token.isNullOrBlank()) {
             recetaViewModel.cargarRecetasGuardadas(token!!)
         }
     }
+
+    LaunchedEffect(recetasGuardadas) {
+        if (recetasGuardadas.isNotEmpty()) {
+            puntajeViewModel.cargarComentariosDe(recetasGuardadas.map { it.id })
+        }
+    }
+
+    val puntajesPorReceta by puntajeViewModel.mapaComentarios
+        .map { mapa ->
+            mapa.mapValues { (_, comentarios) ->
+                val puntajes = comentarios.mapNotNull { it.puntaje }
+                if (puntajes.isNotEmpty()) puntajes.average().toInt() else 0
+            }
+        }.collectAsState(initial = emptyMap())
 
 
     ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
@@ -110,6 +131,7 @@ fun SavedScreen(
                         titulo = "",
                         mostrarEstado = false,
                         mostrarPuntaje = true,
+                        puntajes = puntajesPorReceta, // 👈 NUEVO
                         navController = navController
                     )
                 }

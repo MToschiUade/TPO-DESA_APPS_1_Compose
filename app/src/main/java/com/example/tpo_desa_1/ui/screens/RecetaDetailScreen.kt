@@ -168,7 +168,7 @@ fun RecetaDetailScreen(
                 item { Spacer(modifier = Modifier.height(24.dp)) }
 
                 item {
-                    PuntajeResumenSection(puntaje = r.puntaje, usuarioActual = usuarioActual)
+                    PuntajeResumenSection(comentarios = comentarios, usuarioActual = usuarioActual)
                 }
 
                 item { Spacer(modifier = Modifier.height(24.dp)) }
@@ -413,10 +413,17 @@ fun PasoCard(paso: PasoReceta) {
 }
 
 @Composable
-fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
+fun PuntajeResumenSection(comentarios: List<Comentario>, usuarioActual: String?) {
+    val puntajes = comentarios.mapNotNull { it.puntaje }
+    val cantidad = puntajes.size
+    val promedio = if (cantidad > 0) puntajes.average().toInt() else 0
+    val distribucion = (1..5).associateWith { estrella ->
+        puntajes.count { it == estrella }
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "Reviews (100)", // 📌 Hardcode por ahora
+            text = "Reviews ($cantidad)",
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -437,14 +444,14 @@ fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
 
             // Puntaje en grande
             Text(
-                text = "$puntaje/5",
+                text = "$promedio/5",
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
             )
 
             // Estrellas
             Row {
                 repeat(5) { index ->
-                    val filled = index < puntaje
+                    val filled = index < promedio
                     Icon(
                         imageVector = Icons.Default.Star,
                         contentDescription = null,
@@ -454,40 +461,35 @@ fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
             }
 
             Text(
-                "(100 reviews)",
+                "($cantidad reviews)",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Barras dummy
-            val dummyBars = listOf(
-                "5 Star" to 20,
-                "4 Star" to 20,
-                "3 Star" to 20,
-                "2 Star" to 20,
-                "1 Star" to 20
-            )
+            // Barras dinámicas
+            (5 downTo 1).forEach { star ->
+                val count = distribucion[star] ?: 0
+                val progress = if (cantidad > 0) count / cantidad.toFloat() else 0f
 
-            dummyBars.forEach { (label, value) ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(label, modifier = Modifier.width(60.dp))
+                    Text("$star Star", modifier = Modifier.width(60.dp))
                     LinearProgressIndicator(
-                        progress = value / 100f,
+                        progress = progress,
                         modifier = Modifier
                             .weight(1f)
                             .height(8.dp)
                             .padding(horizontal = 8.dp),
-                        color = Color(0xFF7E57C2),       // barra activa
-                        trackColor = Color(0xFFEDE7F6)   // barra fondo
+                        color = Color(0xFF7E57C2),
+                        trackColor = Color(0xFFEDE7F6)
                     )
-                    Text("$value", style = MaterialTheme.typography.bodySmall)
+                    Text("$count", style = MaterialTheme.typography.bodySmall)
                 }
             }
 
@@ -508,6 +510,7 @@ fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
         }
     }
 }
+
 
 @Composable
 fun ComentariosSection(comentarios: List<Comentario>, usuarioActual: String?) {

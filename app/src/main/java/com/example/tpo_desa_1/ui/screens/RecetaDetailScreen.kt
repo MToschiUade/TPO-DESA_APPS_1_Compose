@@ -162,10 +162,13 @@ fun RecetaDetailScreen(
                 item {
                     PuntajeResumenSection(
                         comentarios = comentarios,
-                        usuarioActual = usuarioActual
+                        usuarioActual = usuarioActual,
+                        onClickEscribirReview = {
+                            mostrarDialogoReview = true
+                        }
                     )
                 }
-
+/*
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
@@ -188,7 +191,7 @@ fun RecetaDetailScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("¡Escribí tu review!")
                     }
-                }
+                }*/
 
                 item { Spacer(modifier = Modifier.height(24.dp)) }
 
@@ -481,7 +484,12 @@ fun PasoCard(paso: PasoReceta) {
 }
 
 @Composable
-fun PuntajeResumenSection(comentarios: List<Comentario>, usuarioActual: String?) {
+fun PuntajeResumenSection(
+    comentarios: List<Comentario>,
+    usuarioActual: String?,
+    onClickEscribirReview: () -> Unit
+)
+ {
     val puntajes = comentarios.mapNotNull { it.puntaje }
     val cantidad = puntajes.size
     val promedio = if (cantidad > 0) puntajes.average().toInt() else 0
@@ -489,7 +497,6 @@ fun PuntajeResumenSection(comentarios: List<Comentario>, usuarioActual: String?)
         puntajes.count { it == estrella }
     }
     val context = LocalContext.current
-    val mostrarDialogoReview = remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -565,13 +572,9 @@ fun PuntajeResumenSection(comentarios: List<Comentario>, usuarioActual: String?)
 
             // Botón condicional
             if (usuarioActual != null) {
-                if (mostrarDialogoReview.value) {
-                    // El AlertDialog va a parte (te lo pasé en el bloque anterior)
-                }
-
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
-                    onClick = { mostrarDialogoReview.value = true },
+                    onClick = { onClickEscribirReview() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)

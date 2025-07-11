@@ -28,17 +28,14 @@ class ComentarioViewModel(
         }
     }
 
-    fun enviarComentario(recetaId: Int) {
+    fun enviarComentario(recetaId: Int, comentario: String, puntaje: Int?) {
         viewModelScope.launch {
             val token = userPreferences.getAccessToken().firstOrNull()
-            if (!token.isNullOrEmpty()) {
-                repository.agregarComentarioAReceta(token, recetaId, nuevoComentario.value, nuevoPuntaje.value)
-                // Recargar luego de enviar
+            if (!token.isNullOrEmpty() && puntaje != null) {
+                repository.agregarComentarioAReceta(token, recetaId, comentario, puntaje)
                 cargarComentarios(recetaId)
-                // Limpiar inputs
-                nuevoComentario.value = ""
-                nuevoPuntaje.value = 0
             }
         }
     }
+
 }

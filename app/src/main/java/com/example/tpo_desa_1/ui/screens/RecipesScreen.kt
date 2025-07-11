@@ -18,9 +18,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.ui.components.RecipeListSection
 import com.example.tpo_desa_1.ui.components.ScreenWithBottomBar
+import com.example.tpo_desa_1.viewmodel.PuntajeViewModel
+import com.example.tpo_desa_1.viewmodel.PuntajeViewModelFactory
 import com.example.tpo_desa_1.viewmodel.RecetaViewModel
 import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun RecipesScreen(
@@ -39,9 +42,28 @@ fun RecipesScreen(
 
     val token by sessionViewModel.accessToken.collectAsState(initial = null)
 
+    val puntajeViewModel: PuntajeViewModel = viewModel(
+        factory = PuntajeViewModelFactory(context)
+    )
+
+
     LaunchedEffect(token) {
         token?.let { recetaViewModel.cargarMisRecetas(it) }
     }
+
+    LaunchedEffect(recetas) {
+        if (recetas.isNotEmpty()) {
+            puntajeViewModel.cargarComentariosDe(recetas.map { it.id })
+        }
+    }
+
+    val puntajesPorReceta by puntajeViewModel.mapaComentarios
+        .map { mapa ->
+            mapa.mapValues { (_, comentarios) ->
+                val puntajes = comentarios.mapNotNull { it.puntaje }
+                if (puntajes.isNotEmpty()) puntajes.average().toInt() else 0
+            }
+        }.collectAsState(initial = emptyMap())
 
 
     ScreenWithBottomBar(navController = navController, sessionViewModel = sessionViewModel) { innerPadding ->
@@ -93,6 +115,7 @@ fun RecipesScreen(
                         titulo = "Tus recetas creadas",
                         mostrarEstado = true,
                         mostrarPuntaje = true,
+                        puntajes = puntajesPorReceta, // 👈 nuevo
                         navController = navController
                     )
                 }

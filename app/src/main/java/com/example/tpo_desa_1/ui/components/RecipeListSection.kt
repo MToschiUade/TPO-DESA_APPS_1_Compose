@@ -41,6 +41,7 @@ fun RecipeListSection(
     mostrarPuntaje: Boolean = false,
     mostrarAutor: Boolean = false,
     maxItems: Int? = null,
+    puntajes: Map<Int, Int>? = null, // ✅ ahora es nullable,
     navController: NavController
 ) {
     Column(
@@ -92,8 +93,9 @@ fun RecipeListSection(
                                     color = Color.Black
                                 )
                                 if (mostrarPuntaje) {
+                                    val puntajePromedio = puntajes?.get(receta.id) ?: 0
                                     Row {
-                                        repeat(receta.puntaje.coerceIn(0, 5)) {
+                                        repeat(puntajePromedio.coerceIn(0, 5)) {
                                             Icon(
                                                 imageVector = Icons.Default.Star,
                                                 contentDescription = "Estrella",
@@ -103,12 +105,13 @@ fun RecipeListSection(
                                         }
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = "${receta.puntaje}/5",
+                                            text = "$puntajePromedio/5",
                                             fontSize = 12.sp,
                                             color = Color.DarkGray
                                         )
                                     }
                                 }
+
                             }
 
                             Spacer(modifier = Modifier.height(4.dp))

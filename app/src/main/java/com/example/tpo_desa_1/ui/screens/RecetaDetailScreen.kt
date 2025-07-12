@@ -1,5 +1,6 @@
 package com.example.tpo_desa_1.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -57,57 +58,59 @@ import com.example.tpo_desa_1.R
 import com.example.tpo_desa_1.data.model.Comentario
 import com.example.tpo_desa_1.data.model.Ingrediente
 import com.example.tpo_desa_1.data.persistence.UserPreferences
+import com.example.tpo_desa_1.viewmodel.ComentarioViewModel
+import com.example.tpo_desa_1.viewmodel.ComentarioViewModelFactory
 import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModel
 import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.material.icons.filled.Close
+
 
 @Composable
 fun RecetaDetailScreen(
     recetaId: Int,
-    usuarioActual: String?, // ✅ ahora puede ser null
+    usuarioActual: String?,
     navController: NavController
 ) {
-
     val porcionesValidas = listOf(0.125f, 0.25f, 0.5f) + (1..10).map { it.toFloat() }
     val selectedPorcionIndex = remember { mutableStateOf(porcionesValidas.indexOf(1f)) }
     val porcionActual = porcionesValidas.getOrElse(selectedPorcionIndex.value) { 1f }
 
     val context = LocalContext.current
-    val recetaViewModel: RecetaViewModel = viewModel(
-        factory = RecetaViewModelFactory(context)
-    )
-
+    val recetaViewModel: RecetaViewModel = viewModel(factory = RecetaViewModelFactory(context))
     val userPreferences = UserPreferences(context)
+
     val destacarViewModel: DestacarRecetaViewModel = viewModel(
         factory = DestacarRecetaViewModelFactory(context, userPreferences)
     )
 
+    val comentarioViewModel: ComentarioViewModel = viewModel(
+        factory = ComentarioViewModelFactory(context, userPreferences)
+    )
 
     val db = AppDatabase.getDatabase(context)
-
     val comentarioDao = db.comentarioDao()
     val pasoDao = db.pasoRecetaDao()
-
-
-    val ingredienteDao = db.ingredienteDao() // ✅ nuevo
+    val ingredienteDao = db.ingredienteDao()
 
     val detallesRepository = remember {
         DetallesRecetaRepository(comentarioDao, pasoDao, ingredienteDao)
     }
-
-
 
     val detallesViewModel: DetallesRecetaViewModel = viewModel(
         factory = DetallesRecetaViewModelFactory(detallesRepository)
     )
 
     val receta by recetaViewModel.obtenerPorId(recetaId)
-    val comentarios = detallesViewModel.comentarios
     val pasos = detallesViewModel.pasos
+    val comentarios by comentarioViewModel.comentarios.collectAsState()
+
+    var mostrarDialogoReview by remember { mutableStateOf(false) }
 
     LaunchedEffect(recetaId) {
         detallesViewModel.cargarDatos(recetaId)
+        comentarioViewModel.cargarComentarios(recetaId)
     }
 
     ScreenWithBottomBar(
@@ -115,7 +118,6 @@ fun RecetaDetailScreen(
         isLoggedIn = usuarioActual != null
     ) { padding ->
         receta?.let { r ->
-            val porcion = remember { mutableStateOf(1f) }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -144,8 +146,6 @@ fun RecetaDetailScreen(
                                 selectedPorcionIndex.value -= 1
                         }
                     )
-
-
                 }
 
                 item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -160,8 +160,38 @@ fun RecetaDetailScreen(
                 item { Spacer(modifier = Modifier.height(24.dp)) }
 
                 item {
-                    PuntajeResumenSection(puntaje = r.puntaje, usuarioActual = usuarioActual)
+                    PuntajeResumenSection(
+                        comentarios = comentarios,
+                        usuarioActual = usuarioActual,
+                        onClickEscribirReview = {
+                            mostrarDialogoReview = true
+                        }
+                    )
                 }
+/*
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = {
+                            if (usuarioActual != null) {
+                                mostrarDialogoReview = true
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Debés iniciar sesión para dejar una review.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("¡Escribí tu review!")
+                    }
+                }*/
 
                 item { Spacer(modifier = Modifier.height(24.dp)) }
 
@@ -171,7 +201,55 @@ fun RecetaDetailScreen(
                         usuarioActual = usuarioActual
                     )
                 }
+            }
 
+            // ✅ POPUP estilo Figma
+            if (mostrarDialogoReview && usuarioActual != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f))
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.White)
+                            .padding(16.dp)
+                    ) {
+                        Column {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Text(
+                                    text = "Escribí tu review",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                IconButton(onClick = { mostrarDialogoReview = false }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Cerrar"
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            EscribirReviewSection(
+                                recetaId = recetaId,
+                                usuarioActual = usuarioActual,
+                                comentarioViewModel = comentarioViewModel,
+                                onComentarioEnviado = {
+                                    mostrarDialogoReview = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
         } ?: Box(
             modifier = Modifier
@@ -183,6 +261,7 @@ fun RecetaDetailScreen(
         }
     }
 }
+
 
 @Composable
 private fun EncabezadoReceta(    receta: Receta,
@@ -405,10 +484,23 @@ fun PasoCard(paso: PasoReceta) {
 }
 
 @Composable
-fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
+fun PuntajeResumenSection(
+    comentarios: List<Comentario>,
+    usuarioActual: String?,
+    onClickEscribirReview: () -> Unit
+)
+ {
+    val puntajes = comentarios.mapNotNull { it.puntaje }
+    val cantidad = puntajes.size
+    val promedio = if (cantidad > 0) puntajes.average().toInt() else 0
+    val distribucion = (1..5).associateWith { estrella ->
+        puntajes.count { it == estrella }
+    }
+    val context = LocalContext.current
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "Reviews (100)", // 📌 Hardcode por ahora
+            text = "Reviews ($cantidad)",
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -429,14 +521,14 @@ fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
 
             // Puntaje en grande
             Text(
-                text = "$puntaje/5",
+                text = "$promedio/5",
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
             )
 
             // Estrellas
             Row {
                 repeat(5) { index ->
-                    val filled = index < puntaje
+                    val filled = index < promedio
                     Icon(
                         imageVector = Icons.Default.Star,
                         contentDescription = null,
@@ -446,40 +538,35 @@ fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
             }
 
             Text(
-                "(100 reviews)",
+                "($cantidad reviews)",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Barras dummy
-            val dummyBars = listOf(
-                "5 Star" to 20,
-                "4 Star" to 20,
-                "3 Star" to 20,
-                "2 Star" to 20,
-                "1 Star" to 20
-            )
+            // Barras dinámicas
+            (5 downTo 1).forEach { star ->
+                val count = distribucion[star] ?: 0
+                val progress = if (cantidad > 0) count / cantidad.toFloat() else 0f
 
-            dummyBars.forEach { (label, value) ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(label, modifier = Modifier.width(60.dp))
+                    Text("$star Star", modifier = Modifier.width(60.dp))
                     LinearProgressIndicator(
-                        progress = value / 100f,
+                        progress = progress,
                         modifier = Modifier
                             .weight(1f)
                             .height(8.dp)
                             .padding(horizontal = 8.dp),
-                        color = Color(0xFF7E57C2),       // barra activa
-                        trackColor = Color(0xFFEDE7F6)   // barra fondo
+                        color = Color(0xFF7E57C2),
+                        trackColor = Color(0xFFEDE7F6)
                     )
-                    Text("$value", style = MaterialTheme.typography.bodySmall)
+                    Text("$count", style = MaterialTheme.typography.bodySmall)
                 }
             }
 
@@ -487,7 +574,21 @@ fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
             if (usuarioActual != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
-                    onClick = { /* Acción futura */ },
+                    onClick = { onClickEscribirReview() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("¡Escribí tu review!")
+                }
+            } else {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = {
+                        Toast.makeText(context, "Debés iniciar sesión para dejar una review.", Toast.LENGTH_SHORT).show()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)
@@ -500,6 +601,7 @@ fun PuntajeResumenSection(puntaje: Int, usuarioActual: String?) {
         }
     }
 }
+
 
 @Composable
 fun ComentariosSection(comentarios: List<Comentario>, usuarioActual: String?) {
@@ -599,4 +701,71 @@ fun Float.toReadable(): String = when (this) {
     0.25f -> "1/4"
     0.125f -> "1/8"
     else -> String.format("%.2f", this)
+}
+
+@Composable
+fun EscribirReviewSection(
+    recetaId: Int,
+    usuarioActual: String,
+    comentarioViewModel: ComentarioViewModel,
+    onComentarioEnviado: () -> Unit
+) {
+    var comentario by remember { mutableStateOf("") }
+    var puntaje by remember { mutableStateOf(0) }
+    var isSending by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Text("Dejanos tu review sobre esta receta")
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // ⭐ Estrellas
+        Row(modifier = Modifier.padding(bottom = 12.dp)) {
+            (1..5).forEach { estrella ->
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Estrella $estrella",
+                    tint = if (estrella <= puntaje) Color(0xFFFFD700) else Color.LightGray,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable { puntaje = estrella }
+                )
+            }
+        }
+
+        // 📝 Campo de texto
+        androidx.compose.material3.OutlinedTextField(
+            value = comentario,
+            onValueChange = { comentario = it },
+            label = { Text("Review*") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // ✅ Botón enviar
+        Button(
+            onClick = {
+                isSending = true
+                comentarioViewModel.enviarComentario(
+                    recetaId = recetaId,
+                    comentario = comentario,
+                    puntaje = puntaje.takeIf { it > 0 }
+                )
+                comentario = ""
+                puntaje = 0
+                isSending = false
+                onComentarioEnviado()
+            },
+            enabled = comentario.isNotBlank() && !isSending,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Comentar")
+        }
+    }
 }

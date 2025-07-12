@@ -15,10 +15,13 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import com.example.tpo_desa_1.data.mapper.*
+import com.example.tpo_desa_1.data.model.Comentario
+import com.example.tpo_desa_1.data.source.remote.ComentarioRemoteDataSource
 
 class RecetaRepositoryImpl(
     private val localDataSource: RecetaLocalDataSource,
-    private val remoteDataSource: RecetaRemoteDataSource
+    private val remoteDataSource: RecetaRemoteDataSource,
+    private val comentarioRemoteDataSource: ComentarioRemoteDataSource
 ) : RecetaRepository {
 
     override suspend fun obtenerTodas(): List<Receta> {
@@ -167,6 +170,13 @@ class RecetaRepositoryImpl(
         }
     }
 
+    override suspend fun obtenerComentariosDeReceta(recetaId: Int): List<Comentario> {
+        return comentarioRemoteDataSource.obtenerComentarios(recetaId)
+    }
+
+    override suspend fun agregarComentarioAReceta(token: String, recetaId: Int, contenido: String, puntaje: Int) {
+        comentarioRemoteDataSource.enviarComentario(token, recetaId, contenido, puntaje)
+    }
 
 
 }

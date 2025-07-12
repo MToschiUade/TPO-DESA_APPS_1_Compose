@@ -30,6 +30,7 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.tpo_desa_1.data.source.remote.ComentarioRemoteDataSource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +67,7 @@ class MainActivity : ComponentActivity() {
         val sessionViewModel = ViewModelProvider(this, sessionViewModelFactory)[SessionViewModel::class.java]
 
         val recetaRemoteDataSource = RecetaRemoteDataSource(apiService)
+        val comentarioRemoteDataSource = ComentarioRemoteDataSource(apiService)
 
         val pasoDao = object : PasoRecetaDao {
             override suspend fun obtenerPorReceta(recetaId: Int) = emptyList<PasoReceta>()
@@ -98,7 +100,7 @@ class MainActivity : ComponentActivity() {
             ingredienteDao = ingredienteDao
         )
 
-        val recetaRepository = RecetaRepositoryImpl(recetaLocalDataSource, recetaRemoteDataSource)
+        val recetaRepository = RecetaRepositoryImpl(recetaLocalDataSource, recetaRemoteDataSource, comentarioRemoteDataSource = comentarioRemoteDataSource)
         val crearRecetaViewModelFactory = CrearRecetaViewModelFactory(
             recetaRepository,
             userPreferences,

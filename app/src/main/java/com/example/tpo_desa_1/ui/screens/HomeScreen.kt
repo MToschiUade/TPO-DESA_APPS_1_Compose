@@ -21,8 +21,12 @@ import com.example.tpo_desa_1.viewmodel.RecetaViewModelFactory
 import com.example.tpo_desa_1.data.db.AppDatabase
 import androidx.compose.ui.graphics.Color
 import com.example.tpo_desa_1.repository.UsuarioRepository
+import com.example.tpo_desa_1.viewmodel.PuntajeViewModel
+import com.example.tpo_desa_1.viewmodel.PuntajeViewModelFactory
 import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import com.example.tpo_desa_1.viewmodel.SessionViewModelFactory
+import kotlinx.coroutines.flow.map
+
 
 @Composable
 fun HomeScreen(
@@ -46,10 +50,32 @@ fun HomeScreen(
     var selectedOption by remember { mutableStateOf("Nombre") }
     val opcionesOrden = listOf("Nombre", "Más nuevas", "Usuario")
 
+    val puntajeViewModel: PuntajeViewModel = viewModel(
+        factory = PuntajeViewModelFactory(context)
+    )
+
+// Dispara la carga de recetas aprobadas al iniciar
     LaunchedEffect(Unit) {
         viewModel.cargarRecientesAprobadas()
         viewModel.cargarRecetasAprobadas()
     }
+
+// Cuando recetasAprobadas se actualiza y tiene data, cargamos los puntajes
+    LaunchedEffect(recetasAprobadas) {
+        if (recetasAprobadas.isNotEmpty()) {
+            puntajeViewModel.cargarComentariosDe(recetasAprobadas.map { it.id })
+        }
+    }
+
+
+    val puntajesPorReceta by puntajeViewModel.mapaComentarios
+        .map { mapa ->
+            mapa.mapValues { (_, comentarios) ->
+                val puntuaciones = comentarios.mapNotNull { it.puntaje }
+                if (puntuaciones.isNotEmpty()) puntuaciones.average().toInt() else 0
+            }
+        }.collectAsState(initial = emptyMap())
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -140,9 +166,11 @@ fun HomeScreen(
                 mostrarEstado = false,
                 mostrarPuntaje = true,
                 mostrarAutor = true,
+                puntajes = puntajesPorReceta, // 👈 nuevo
                 modifier = Modifier.weight(1f),
                 navController = navController
             )
+
         }
     }
 }

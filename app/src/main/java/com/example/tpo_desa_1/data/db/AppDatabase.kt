@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
         RecetaGuardada::class,
         Ingrediente::class
     ],
-    version = 12
+    version = 13
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

@@ -12,7 +12,8 @@ fun MiRecetaDTO.toModel(): Triple<Receta, List<PasoReceta>, List<Ingrediente>> {
         estado = estado,
         fechaRevision = null,
         imagenPortadaUrl = imagePortada ?: "",
-        autor = autor
+        autor = autor,
+        motivoRechazo = motivo // 👈 NUEVO
     )
 
     val pasos = pasos.mapIndexed { index, paso ->

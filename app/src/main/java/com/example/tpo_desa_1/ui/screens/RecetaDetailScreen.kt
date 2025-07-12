@@ -65,6 +65,8 @@ import com.example.tpo_desa_1.viewmodel.DestacarRecetaViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Warning
 
 
 @Composable
@@ -118,6 +120,36 @@ fun RecetaDetailScreen(
         isLoggedIn = usuarioActual != null
     ) { padding ->
         receta?.let { r ->
+            var mostrarMotivoRechazo by remember { mutableStateOf(true) }
+            if (r.motivoRechazo != null && mostrarMotivoRechazo) {
+                AlertDialog(
+                    onDismissRequest = { mostrarMotivoRechazo = false },
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Advertencia",
+                                tint = Color.Red,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text("Motivo de Rechazo")
+                        }
+                    },
+                    text = {
+                        Text(r.motivoRechazo ?: "")
+                    },
+                    confirmButton = {
+                        Button(onClick = { mostrarMotivoRechazo = false }) {
+                            Text("Entendido")
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    textContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

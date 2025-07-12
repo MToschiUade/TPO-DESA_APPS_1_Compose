@@ -16,8 +16,6 @@ data class Receta(
     val estado: String,
     val fechaRevision: Long?,
     val imagenPortadaUrl: String,
-    val autor: String
+    val autor: String,
+    val motivoRechazo: String? = null // 👈 NUEVO
 )
-
-
-

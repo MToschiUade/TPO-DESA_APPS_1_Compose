@@ -22,6 +22,7 @@ fun MiRecetaDTO.toEditarRecetaRequest(): EditarRecetaRequest {
             )
         },
         duracion = this.duracion,
-        imagePortada = this.imagePortada
+        imagePortada = this.imagePortada!!
+        // TODO Parche para build, revisar después
     )
 }

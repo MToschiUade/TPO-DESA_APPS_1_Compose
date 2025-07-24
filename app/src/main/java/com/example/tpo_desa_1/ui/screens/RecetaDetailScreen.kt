@@ -780,7 +780,7 @@ fun EscribirReviewSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ✅ Botón enviar
+
         Button(
             onClick = {
                 isSending = true
@@ -794,7 +794,7 @@ fun EscribirReviewSection(
                 isSending = false
                 onComentarioEnviado()
             },
-            enabled = comentario.isNotBlank() && !isSending,
+            enabled = puntaje > 0 && !isSending,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Comentar")

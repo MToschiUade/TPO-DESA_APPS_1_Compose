@@ -114,9 +114,9 @@ fun RecipesScreen(
                         recetas = recetas,
                         titulo = "Tus recetas creadas",
                         mostrarEstado = true,
-                        mostrarPuntaje = true,
                         puntajes = puntajesPorReceta, // 👈 nuevo
-                        navController = navController
+                        navController = navController,
+                        editable = true
                     )
                 }
             }

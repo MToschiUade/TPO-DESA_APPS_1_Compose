@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,8 +42,9 @@ fun RecipeListSection(
     mostrarPuntaje: Boolean = false,
     mostrarAutor: Boolean = false,
     maxItems: Int? = null,
-    puntajes: Map<Int, Int>? = null, // ✅ ahora es nullable,
-    navController: NavController
+    puntajes: Map<Int, Int>? = null,
+    navController: NavController,
+    editable: Boolean = false // 👈 nuevo parámetro
 ) {
     Column(
         modifier = modifier
@@ -62,25 +64,30 @@ fun RecipeListSection(
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             items(recetas.take(maxItems ?: recetas.size)) { receta ->
-                Row(    modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { navController.navigate("detalle_receta/${receta.id}") }) {
-                    AsyncImage(
-                        model = receta.imagenPortadaUrl,
-                        contentDescription = receta.nombre,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Box(
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
                         modifier = Modifier
                             .weight(1f)
-                            .align(Alignment.CenterVertically)
+                            .clickable {
+                                navController.navigate("detalle_receta/${receta.id}")
+                            }
                     ) {
-                        Column {
-                            // Título y puntaje alineado a derecha
+                        AsyncImage(
+                            model = receta.imagenPortadaUrl,
+                            contentDescription = receta.nombre,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        ) {
+                            // Título y puntaje
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -111,7 +118,6 @@ fun RecipeListSection(
                                         )
                                     }
                                 }
-
                             }
 
                             Spacer(modifier = Modifier.height(4.dp))
@@ -132,11 +138,10 @@ fun RecipeListSection(
                                 )
                             }
 
-                            // Estado (opcional)
+                            // Estado
                             if (mostrarEstado) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 val estadoColor = when (receta.estado.lowercase()) {
-                                    //TODO cambiar los status del BE para que coincidan con el FE y terminen en A el objeto es receta!
                                     "aprobado" -> Color(0xFF34A853)
                                     "pendiente" -> Color(0xFFFFA000)
                                     "rechazado" -> Color(0xFFE53935)
@@ -153,7 +158,7 @@ fun RecipeListSection(
                                 )
                             }
 
-                            // Autor (última línea)
+                            // Autor
                             if (mostrarAutor) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
@@ -164,11 +169,27 @@ fun RecipeListSection(
                             }
                         }
                     }
+
+                    // Icono de edición si editable = true
+                    if (editable) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar receta",
+                            tint = Color.DarkGray,
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(24.dp)
+                                .clickable {
+                                    navController.navigate("editarReceta/${receta.id}")
+                                }
+                        )
+                    }
                 }
             }
         }
     }
 }
+
 
 // 👉 Función utilitaria para mostrar tiempos más legibles
 fun formatTiempo(minutos: Int): String {

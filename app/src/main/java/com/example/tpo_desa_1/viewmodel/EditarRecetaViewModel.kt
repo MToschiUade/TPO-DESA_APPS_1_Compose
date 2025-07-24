@@ -52,6 +52,7 @@ class EditarRecetaViewModel(
     val tiempoMinutos: State<Int> = _tiempoMinutos
 
     init {
+        println("🧠 [EditarRecetaViewModel] RecetaId recibido: $recetaId")
         cargarDatosIniciales()
     }
 
@@ -59,6 +60,7 @@ class EditarRecetaViewModel(
         viewModelScope.launch {
             val token = userPreferences.getAccessToken().firstOrNull() ?: return@launch
             val receta = recetaRepository.obtenerMiRecetaPorId(recetaId, token) ?: return@launch
+            println("🌐 Llamando a obtenerMiRecetaPorId($recetaId)")
 
             println("🧠 Receta cargada: ${receta.title}")
             println("📸 Imagen: ${receta.imagePortada}")

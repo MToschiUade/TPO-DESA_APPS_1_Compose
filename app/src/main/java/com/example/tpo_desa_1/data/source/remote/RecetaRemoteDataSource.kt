@@ -141,9 +141,4 @@ class RecetaRemoteDataSource(
         return api.editarReceta(id, request, "Bearer $token")
     }
 
-    suspend fun obtenerMiRecetaPorId(id: Int, token: String): Response<MiRecetaDTO> {
-        return api.obtenerMiRecetaPorId(id, "Bearer $token")
-    }
-
-
 }

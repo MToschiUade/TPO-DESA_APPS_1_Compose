@@ -195,13 +195,12 @@ class RecetaRepositoryImpl(
 
     override suspend fun obtenerMiRecetaPorId(id: Int, token: String): MiRecetaDTO? {
         return try {
-            val response = remoteDataSource.obtenerMiRecetaPorId(id, token)
-            if (response.isSuccessful) response.body() else null
+            val todasMisRecetas = remoteDataSource.obtenerMisRecetas(token)
+            todasMisRecetas.firstOrNull { it.idRecipe == id }
         } catch (e: Exception) {
             null
         }
     }
-
 
 }
 

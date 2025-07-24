@@ -180,10 +180,12 @@ fun RecipeListSection(
                                 .padding(start = 8.dp)
                                 .size(24.dp)
                                 .clickable {
+                                    println("🛠️ Navegando a editarReceta con ID: ${receta.id}")
                                     navController.navigate("editarReceta/${receta.id}")
                                 }
                         )
                     }
+
                 }
             }
         }

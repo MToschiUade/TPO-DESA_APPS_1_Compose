@@ -134,10 +134,4 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<Void>
 
-    @GET("recipes/myrecipes/{id}")
-    suspend fun obtenerMiRecetaPorId(
-        @Path("id") id: Int,
-        @Header("Authorization") token: String
-    ): Response<MiRecetaDTO>
-
 }

@@ -16,6 +16,8 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import com.example.tpo_desa_1.data.mapper.*
 import com.example.tpo_desa_1.data.model.Comentario
+import com.example.tpo_desa_1.data.model.request.EditarRecetaRequest
+import com.example.tpo_desa_1.data.model.response.MiRecetaDTO
 import com.example.tpo_desa_1.data.source.remote.ComentarioRemoteDataSource
 
 class RecetaRepositoryImpl(
@@ -176,6 +178,28 @@ class RecetaRepositoryImpl(
 
     override suspend fun agregarComentarioAReceta(token: String, recetaId: Int, contenido: String, puntaje: Int) {
         comentarioRemoteDataSource.enviarComentario(token, recetaId, contenido, puntaje)
+    }
+
+    override suspend fun editarReceta(
+        recipeId: Int,
+        request: EditarRecetaRequest,
+        token: String
+    ): Boolean {
+        return try {
+            val response = remoteDataSource.editarReceta(recipeId, request, token)
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    override suspend fun obtenerMiRecetaPorId(id: Int, token: String): MiRecetaDTO? {
+        return try {
+            val response = remoteDataSource.obtenerMiRecetaPorId(id, token)
+            if (response.isSuccessful) response.body() else null
+        } catch (e: Exception) {
+            null
+        }
     }
 
 

@@ -10,6 +10,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import com.example.tpo_desa_1.data.model.Receta
 import com.example.tpo_desa_1.data.mapper.toModel
+import com.example.tpo_desa_1.data.model.request.EditarRecetaRequest
 import com.example.tpo_desa_1.data.model.response.MiRecetaDTO
 import com.example.tpo_desa_1.utils.uriToFile
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -45,10 +46,6 @@ class RecetaRemoteDataSource(
             null
         }
     }
-
-
-
-
 
     suspend fun enviarReceta(dto: RecetaDTO): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {
@@ -138,6 +135,14 @@ class RecetaRemoteDataSource(
 
     suspend fun getCantidadRecetas(token: String): Response<Int> {
         return api.getCantidadRecetas("Bearer $token")
+    }
+
+    suspend fun editarReceta(id: Int, request: EditarRecetaRequest, token: String): Response<Void> {
+        return api.editarReceta(id, request, "Bearer $token")
+    }
+
+    suspend fun obtenerMiRecetaPorId(id: Int, token: String): Response<MiRecetaDTO> {
+        return api.obtenerMiRecetaPorId(id, "Bearer $token")
     }
 
 

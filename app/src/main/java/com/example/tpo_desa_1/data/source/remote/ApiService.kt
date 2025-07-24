@@ -2,6 +2,7 @@ package com.example.tpo_desa_1.data.source.remote
 
 import com.example.tpo_desa_1.data.model.RecetaDTO
 import com.example.tpo_desa_1.data.model.request.CalificarRecetaRequest
+import com.example.tpo_desa_1.data.model.request.EditarRecetaRequest
 import com.example.tpo_desa_1.data.model.request.LoginRequest
 import com.example.tpo_desa_1.data.model.response.ComentarioDTO
 import com.example.tpo_desa_1.data.model.response.LoginResponse
@@ -121,5 +122,22 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body body: CalificarRecetaRequest
     ): Response<Unit>
+
+    // ——————————————————————————————
+    // EDITAR RECETA
+    // ——————————————————————————————
+
+    @PUT("recipes/{id}")
+    suspend fun editarReceta(
+        @Path("id") id: Int,
+        @Body request: EditarRecetaRequest,
+        @Header("Authorization") token: String
+    ): Response<Void>
+
+    @GET("recipes/myrecipes/{id}")
+    suspend fun obtenerMiRecetaPorId(
+        @Path("id") id: Int,
+        @Header("Authorization") token: String
+    ): Response<MiRecetaDTO>
 
 }

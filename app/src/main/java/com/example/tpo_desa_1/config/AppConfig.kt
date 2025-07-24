@@ -4,7 +4,7 @@ object AppConfig {
     const val ALLOW_API_FAILURE_CACHE = false // (opcional futuro) Si cacheamos los últimos datos de la API
 
     // Cambiá esta flag según estés usando local o cloud
-    const val USE_LOCAL_API = true
+    const val USE_LOCAL_API = false
 
     // URL para correr localmente desde emulador de Android
     private const val LOCAL_BASE_URL = "http://10.0.2.2:4002/" // ¡Importantísimo usar 10.0.2.2 para localhost del host!

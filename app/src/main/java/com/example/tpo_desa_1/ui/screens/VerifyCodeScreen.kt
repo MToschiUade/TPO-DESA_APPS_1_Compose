@@ -18,7 +18,6 @@ import com.example.tpo_desa_1.repository.PasswordResetRepository
 import com.example.tpo_desa_1.viewmodel.PasswordResetViewModel
 import com.example.tpo_desa_1.viewmodel.PasswordResetViewModelFactory
 import kotlinx.coroutines.delay
-
 @Composable
 fun VerifyCodeScreen(
     navController: NavController,
@@ -34,6 +33,36 @@ fun VerifyCodeScreen(
 
     val loading by viewModel.loading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+
+    // Estado para el botón de reenviar
+    var canResend by remember { mutableStateOf(false) }
+    var secondsRemaining by remember { mutableStateOf(30) }
+    var resendCount by remember { mutableStateOf(0) }
+    val maxResends = 3
+    var resendTrigger by remember { mutableStateOf(0) } // para que LaunchedEffect se dispare con cada clic
+
+    // Cooldown inicial automático
+    LaunchedEffect(Unit) {
+        canResend = false
+        secondsRemaining = 30
+        while (secondsRemaining > 0) {
+            delay(1000)
+            secondsRemaining--
+        }
+        canResend = true
+    }
+
+    // Cooldown por clic en "Reenviar código"
+    LaunchedEffect(resendTrigger) {
+        if (resendTrigger == 0) return@LaunchedEffect
+        canResend = false
+        secondsRemaining = 30
+        while (secondsRemaining > 0) {
+            delay(1000)
+            secondsRemaining--
+        }
+        canResend = true
+    }
 
     Column(
         modifier = Modifier
@@ -119,7 +148,28 @@ fun VerifyCodeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔁 Botón "Reenviar código"
+        OutlinedButton(
+            onClick = {
+                resendCount++
+                resendTrigger++
+                viewModel.requestReset(email) { /* sin navegación */ }
+            },
+            enabled = canResend && resendCount < maxResends,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                when {
+                    resendCount >= maxResends -> "Reintentos agotados"
+                    !canResend -> "Reenviar código (${secondsRemaining}s)"
+                    else -> "Reenviar código"
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         TextButton(onClick = {
             navController.popBackStack()

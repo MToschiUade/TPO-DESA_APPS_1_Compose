@@ -93,6 +93,14 @@ fun PasswordResetScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "⚠️ Solo los usuarios con cuenta activa recibirán el código por correo.",
+                color = Color(0xFFCC5500), // tono anaranjado
+                fontSize = 12.sp
+            )
+
             if (!errorMessage.isNullOrBlank()) {
                 Text(
                     text = errorMessage ?: "",

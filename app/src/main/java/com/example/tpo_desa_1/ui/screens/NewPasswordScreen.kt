@@ -24,6 +24,8 @@ import com.example.tpo_desa_1.data.source.remote.ApiServiceBuilder
 import com.example.tpo_desa_1.repository.PasswordResetRepository
 import com.example.tpo_desa_1.viewmodel.PasswordResetViewModel
 import com.example.tpo_desa_1.viewmodel.PasswordResetViewModelFactory
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 @Composable
 fun NewPasswordScreen(
@@ -34,6 +36,9 @@ fun NewPasswordScreen(
     var password by remember { mutableStateOf("") }
     var repeatPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val viewModel: PasswordResetViewModel = viewModel(
         factory = PasswordResetViewModelFactory(
@@ -46,122 +51,130 @@ fun NewPasswordScreen(
 
     val passwordsMatch = password == repeatPassword && password.length >= 6
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        IconButton(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier.align(Alignment.TopEnd)
-        ) {
-            Icon(Icons.Default.Close, contentDescription = "Cerrar")
-        }
-
-        Column(
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.splash_logo),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(bottom = 16.dp)
-            )
-
-            Text("Restablece tu contraseña", fontSize = 20.sp)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text("Ingresá tu nueva contraseña dos veces", fontSize = 14.sp, color = Color.Gray)
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                    viewModel.clearError()
-                },
-                label = { Text("Nueva contraseña") },
-                singleLine = true,
-                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { showPassword = !showPassword }) {
-                        Icon(
-                            imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = "Ver contraseña"
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = repeatPassword,
-                onValueChange = {
-                    repeatPassword = it
-                    viewModel.clearError()
-                },
-                label = { Text("Repetir contraseña") },
-                singleLine = true,
-                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { showPassword = !showPassword }) {
-                        Icon(
-                            imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = "Ver contraseña"
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            if (!errorMessage.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(errorMessage ?: "", color = Color.Red, fontSize = 12.sp)
-            } else if (!passwordsMatch && password.isNotBlank() && repeatPassword.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Las contraseñas no coinciden o son muy cortas", color = Color.Red, fontSize = 12.sp)
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(Icons.Default.Close, contentDescription = "Cerrar")
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    viewModel.changePassword(
-                        email = email,
-                        totpCode = totpCode,
-                        newpass = password,
-                        onSuccess = {
-                            navController.navigate("home") {
-                                popUpTo("session_switch") { inclusive = true }
-                            }
-                        }
-                    )
-                },
-                enabled = passwordsMatch && !loading,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .align(Alignment.Center)
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (loading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Cambiar contraseña")
+                Image(
+                    painter = painterResource(id = R.drawable.splash_logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(bottom = 16.dp)
+                )
+
+                Text("Restablece tu contraseña", fontSize = 20.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Ingresá tu nueva contraseña dos veces", fontSize = 14.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        viewModel.clearError()
+                    },
+                    label = { Text("Nueva contraseña") },
+                    singleLine = true,
+                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { showPassword = !showPassword }) {
+                            Icon(
+                                imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = "Ver contraseña"
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = repeatPassword,
+                    onValueChange = {
+                        repeatPassword = it
+                        viewModel.clearError()
+                    },
+                    label = { Text("Repetir contraseña") },
+                    singleLine = true,
+                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { showPassword = !showPassword }) {
+                            Icon(
+                                imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = "Ver contraseña"
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (!errorMessage.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(errorMessage ?: "", color = Color.Red, fontSize = 12.sp)
+                } else if (!passwordsMatch && password.isNotBlank() && repeatPassword.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Las contraseñas no coinciden o son muy cortas", color = Color.Red, fontSize = 12.sp)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.changePassword(
+                            email = email,
+                            totpCode = totpCode,
+                            newpass = password,
+                            onSuccess = {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("✅ Contraseña actualizada con éxito. ¡Ahora podés iniciar sesión!")
+                                    delay(2500)
+                                    navController.navigate("home") {
+                                        popUpTo("session_switch") { inclusive = true }
+                                    }
+                                }
+                            }
+                        )
+                    },
+                    enabled = passwordsMatch && !loading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    if (loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Cambiar contraseña")
+                    }
                 }
             }
         }
     }
 }
+
+

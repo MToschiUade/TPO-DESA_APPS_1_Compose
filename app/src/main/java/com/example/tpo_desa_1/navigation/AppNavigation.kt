@@ -53,17 +53,17 @@ fun AppNavigation(
         navController = navController,
         startDestination = Screen.Splash.route
     ) {
-        // Pantalla de carga
+        // Splash
         composable(Screen.Splash.route) {
             SplashScreen(navController, sessionViewModel)
         }
 
-        // Pantalla pública
+        // Pública
         composable(Screen.Home.route) {
             HomeScreen(navController, sessionViewModel)
         }
 
-        // Pantallas protegidas
+        // Protegidas
         composable(Screen.Recipes.route) {
             if (isLoggedIn && alias != null) {
                 ScreenWithBottomBar(navController, sessionViewModel) { innerPadding ->
@@ -71,10 +71,7 @@ fun AppNavigation(
                 }
             } else {
                 LaunchedEffect(Unit) {
-                    println("🔐 Protegida: Recipes → redirigiendo a Login")
-                    navController.navigate(Screen.SessionSwitch.route) {
-                        launchSingleTop = true
-                    }
+                    navController.navigate(Screen.SessionSwitch.route) { launchSingleTop = true }
                 }
             }
         }
@@ -84,10 +81,7 @@ fun AppNavigation(
                 SavedScreen(navController, sessionViewModel)
             } else {
                 LaunchedEffect(Unit) {
-                    println("🔐 Protegida: Saved → redirigiendo a Login")
-                    navController.navigate(Screen.SessionSwitch.route) {
-                        launchSingleTop = true
-                    }
+                    navController.navigate(Screen.SessionSwitch.route) { launchSingleTop = true }
                 }
             }
         }
@@ -97,10 +91,7 @@ fun AppNavigation(
                 ProfileScreen(navController, sessionViewModel)
             } else {
                 LaunchedEffect(Unit) {
-                    println("🔐 Protegida: Profile → redirigiendo a Login")
-                    navController.navigate(Screen.SessionSwitch.route) {
-                        launchSingleTop = true
-                    }
+                    navController.navigate(Screen.SessionSwitch.route) { launchSingleTop = true }
                 }
             }
         }
@@ -110,7 +101,7 @@ fun AppNavigation(
             LoginSessionScreen(navController, sessionViewModel)
         }
 
-        // Pantallas libres
+        // Rutas libres (no requieren auth)
         composable("detalle_receta/{recetaId}") { back ->
             back.arguments?.getString("recetaId")?.toIntOrNull()?.let { id ->
                 RecetaDetailScreen(id, usuarioActual = alias, navController)
@@ -135,20 +126,15 @@ fun AppNavigation(
         }
 
         composable(
-            route = "new_password/{email}",
-            arguments = listOf(navArgument("email") { type = NavType.StringType })
+            route = "new_password/{email}/{totpCode}",
+            arguments = listOf(
+                navArgument("email") { type = NavType.StringType },
+                navArgument("totpCode") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
-            NewPasswordScreen(navController = navController, email = email)
+            val totpCode = backStackEntry.arguments?.getString("totpCode") ?: ""
+            NewPasswordScreen(navController = navController, email = email, totpCode = totpCode)
         }
-
-        composable(
-            "new_password/{email}",
-            arguments = listOf(navArgument("email") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            NewPasswordScreen(navController, email)
-        }
-
     }
 }

@@ -17,16 +17,32 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
-//import com.example.tpo_desa_1.auth.FakeAuthManager
+import com.example.tpo_desa_1.data.source.remote.ApiServiceBuilder
+import com.example.tpo_desa_1.repository.PasswordResetRepository
+import com.example.tpo_desa_1.viewmodel.PasswordResetViewModel
+import com.example.tpo_desa_1.viewmodel.PasswordResetViewModelFactory
 
 @Composable
-fun NewPasswordScreen(navController: NavController, email: String) {
+fun NewPasswordScreen(
+    navController: NavController,
+    email: String,
+    totpCode: String
+) {
     var password by remember { mutableStateOf("") }
     var repeatPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val viewModel: PasswordResetViewModel = viewModel(
+        factory = PasswordResetViewModelFactory(
+            PasswordResetRepository(ApiServiceBuilder.apiService)
+        )
+    )
+
+    val loading by viewModel.loading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val passwordsMatch = password == repeatPassword && password.length >= 6
 
@@ -38,8 +54,7 @@ fun NewPasswordScreen(navController: NavController, email: String) {
     ) {
         IconButton(
             onClick = { navController.popBackStack() },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
+            modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Icon(Icons.Default.Close, contentDescription = "Cerrar")
         }
@@ -59,9 +74,11 @@ fun NewPasswordScreen(navController: NavController, email: String) {
                     .padding(bottom = 16.dp)
             )
 
-            Text("Restablece tu contraseña", fontSize = 20.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            Text("Restablece tu contraseña", fontSize = 20.sp)
+
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Por favor, ingresá tu nueva contraseña y repetila", fontSize = 14.sp, color = Color.Gray)
+
+            Text("Ingresá tu nueva contraseña dos veces", fontSize = 14.sp, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -69,7 +86,7 @@ fun NewPasswordScreen(navController: NavController, email: String) {
                 value = password,
                 onValueChange = {
                     password = it
-                    errorMessage = null
+                    viewModel.clearError()
                 },
                 label = { Text("Nueva contraseña") },
                 singleLine = true,
@@ -82,7 +99,6 @@ fun NewPasswordScreen(navController: NavController, email: String) {
                         )
                     }
                 },
-                isError = errorMessage != null,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -92,9 +108,9 @@ fun NewPasswordScreen(navController: NavController, email: String) {
                 value = repeatPassword,
                 onValueChange = {
                     repeatPassword = it
-                    errorMessage = null
+                    viewModel.clearError()
                 },
-                label = { Text("Repite tu contraseña") },
+                label = { Text("Repetir contraseña") },
                 singleLine = true,
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -105,34 +121,46 @@ fun NewPasswordScreen(navController: NavController, email: String) {
                         )
                     }
                 },
-                isError = errorMessage != null,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            if (errorMessage != null) {
+            if (!errorMessage.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(errorMessage ?: "", color = Color.Red, fontSize = 12.sp)
+            } else if (!passwordsMatch && password.isNotBlank() && repeatPassword.isNotBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Las contraseñas no coinciden o son muy cortas", color = Color.Red, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
-                    if (passwordsMatch) {
-                        //FakeAuthManager.updatePassword(email, password)
-                        navController.navigate("home") {
-                            popUpTo("session_switch") { inclusive = true }
+                    viewModel.changePassword(
+                        email = email,
+                        totpCode = totpCode,
+                        newpass = password,
+                        onSuccess = {
+                            navController.navigate("home") {
+                                popUpTo("session_switch") { inclusive = true }
+                            }
                         }
-                    } else {
-                        errorMessage = "Las contraseñas no coinciden o son muy cortas"
-                    }
+                    )
                 },
-                enabled = password.isNotBlank() && repeatPassword.isNotBlank(),
+                enabled = passwordsMatch && !loading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text("Continuar")
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Cambiar contraseña")
+                }
             }
         }
     }

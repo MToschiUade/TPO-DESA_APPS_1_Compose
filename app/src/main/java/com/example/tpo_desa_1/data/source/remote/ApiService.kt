@@ -2,7 +2,9 @@ package com.example.tpo_desa_1.data.source.remote
 
 import com.example.tpo_desa_1.data.model.RecetaDTO
 import com.example.tpo_desa_1.data.model.request.CalificarRecetaRequest
+import com.example.tpo_desa_1.data.model.request.ChangePasswordDTO
 import com.example.tpo_desa_1.data.model.request.LoginRequest
+import com.example.tpo_desa_1.data.model.request.VerifyCodeResponse
 import com.example.tpo_desa_1.data.model.response.ComentarioDTO
 import com.example.tpo_desa_1.data.model.response.LoginResponse
 import com.example.tpo_desa_1.data.model.response.MiRecetaDTO
@@ -122,4 +124,28 @@ interface ApiService {
         @Body body: CalificarRecetaRequest
     ): Response<Unit>
 
+    // ——————————————————————————————
+    // RECUPERACIÓN DE CONTRASEÑA
+    // ——————————————————————————————
+
+    @FormUrlEncoded
+    @POST("pass/request-reset")
+    suspend fun requestPasswordReset(
+        @Field("email") email: String
+    ): Response<Unit>
+
+    @FormUrlEncoded
+    @POST("pass/verify-totp")
+    suspend fun verifyCode(
+        @Field("email") email: String,
+        @Field("totpCode") totpCode: String
+    ): Response<VerifyCodeResponse>
+
+    @FormUrlEncoded
+    @PUT("pass/change-password")
+    suspend fun changePassword(
+        @Field("email") email: String,
+        @Field("totpCode") totpCode: String,
+        @Field("newpass") newpass: String
+    ): Response<Unit>
 }

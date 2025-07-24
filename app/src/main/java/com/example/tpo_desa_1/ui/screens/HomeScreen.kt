@@ -162,7 +162,7 @@ fun HomeScreen(
             RecipeListSection(
                 recetas = recetasFiltradas,
                 titulo = "Explorá recetas de la comunidad",
-                maxItems = 4,
+                maxItems = 15,
                 mostrarEstado = false,
                 mostrarPuntaje = true,
                 mostrarAutor = true,

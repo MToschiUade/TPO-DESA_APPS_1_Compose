@@ -116,7 +116,9 @@ class MainActivity : ComponentActivity() {
                 AppNavigation(
                     sessionViewModel = sessionViewModel,
                     crearRecetaViewModel = crearRecetaViewModel,
-                    apiService = apiService
+                    apiService = apiService,
+                    recetaRepository = recetaRepository,         // 👈 agregado
+                    userPreferences = userPreferences            // 👈 agregado
                 )
             }
         }

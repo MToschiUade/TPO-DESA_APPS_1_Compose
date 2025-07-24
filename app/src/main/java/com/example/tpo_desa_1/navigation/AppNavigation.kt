@@ -21,7 +21,9 @@ import com.example.tpo_desa_1.viewmodel.SessionViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.tpo_desa_1.data.persistence.UserPreferences
 import com.example.tpo_desa_1.data.source.remote.ApiService
+import com.example.tpo_desa_1.repository.RecetaRepository
 import com.example.tpo_desa_1.viewmodel.CrearRecetaViewModel
 
 
@@ -44,6 +46,8 @@ fun AppNavigation(
     sessionViewModel: SessionViewModel,
     crearRecetaViewModel: CrearRecetaViewModel,
     apiService: ApiService,
+    recetaRepository: RecetaRepository,
+    userPreferences: UserPreferences,
     navController: NavHostController = rememberNavController()
 ) {
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState(initial = false)
@@ -149,6 +153,26 @@ fun AppNavigation(
             val email = backStackEntry.arguments?.getString("email") ?: ""
             NewPasswordScreen(navController, email)
         }
+
+        composable(
+            "editarReceta/{recetaId}",
+            arguments = listOf(navArgument("recetaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val recetaId = backStackEntry.arguments?.getInt("recetaId") ?: return@composable
+            EditarRecetaScreen(
+                recetaId = recetaId,
+                recetaRepository = recetaRepository, // asegurate de tenerlo disponible
+                userPreferences = userPreferences,   // asegurate de tenerlo disponible
+                onRecetaEditada = {
+                    // Podés volver a "recipes" o mostrar un snackbar, lo que prefieras
+                    navController.popBackStack()
+                },
+                onVolver = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
 
     }
 }

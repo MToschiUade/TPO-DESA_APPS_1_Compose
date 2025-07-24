@@ -58,7 +58,16 @@ class EditarRecetaViewModel(
     private fun cargarDatosIniciales() {
         viewModelScope.launch {
             val token = userPreferences.getAccessToken().firstOrNull() ?: return@launch
-            val receta = recetaRepository.obtenerMiRecetaPorId(recetaId,token) ?: return@launch
+            val receta = recetaRepository.obtenerMiRecetaPorId(recetaId, token) ?: return@launch
+
+            println("🧠 Receta cargada: ${receta.title}")
+            println("📸 Imagen: ${receta.imagePortada}")
+            println("🕒 Duración: ${receta.duracion} minutos")
+            println("📋 Ingredientes: ${receta.ingredientes.size}")
+            println("👨‍🍳 Pasos: ${receta.pasos.size}")
+            receta.pasos.forEachIndexed { i, paso ->
+                println("Paso $i → proceso: ${paso.proceso}, url: ${paso.url}")
+            }
 
             _tituloReceta.value = receta.title
             _imagenPortadaUri.value = receta.imagePortada

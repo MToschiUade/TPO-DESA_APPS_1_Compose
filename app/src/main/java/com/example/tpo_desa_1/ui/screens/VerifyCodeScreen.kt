@@ -8,20 +8,61 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tpo_desa_1.R
-
+import com.example.tpo_desa_1.data.source.remote.ApiServiceBuilder
+import com.example.tpo_desa_1.repository.PasswordResetRepository
+import com.example.tpo_desa_1.viewmodel.PasswordResetViewModel
+import com.example.tpo_desa_1.viewmodel.PasswordResetViewModelFactory
+import kotlinx.coroutines.delay
 @Composable
 fun VerifyCodeScreen(
     navController: NavController,
     email: String
 ) {
     var codeInput by remember { mutableStateOf("") }
-    var codigoIncorrecto by remember { mutableStateOf(false) }
-    val expectedCode = "123456"
+
+    val viewModel: PasswordResetViewModel = viewModel(
+        factory = PasswordResetViewModelFactory(
+            PasswordResetRepository(ApiServiceBuilder.apiService)
+        )
+    )
+
+    val loading by viewModel.loading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    // Estado para el botón de reenviar
+    var canResend by remember { mutableStateOf(false) }
+    var secondsRemaining by remember { mutableStateOf(30) }
+    var resendCount by remember { mutableStateOf(0) }
+    val maxResends = 3
+    var resendTrigger by remember { mutableStateOf(0) } // para que LaunchedEffect se dispare con cada clic
+
+    // Cooldown inicial automático
+    LaunchedEffect(Unit) {
+        canResend = false
+        secondsRemaining = 30
+        while (secondsRemaining > 0) {
+            delay(1000)
+            secondsRemaining--
+        }
+        canResend = true
+    }
+
+    // Cooldown por clic en "Reenviar código"
+    LaunchedEffect(resendTrigger) {
+        if (resendTrigger == 0) return@LaunchedEffect
+        canResend = false
+        secondsRemaining = 30
+        while (secondsRemaining > 0) {
+            delay(1000)
+            secondsRemaining--
+        }
+        canResend = true
+    }
 
     Column(
         modifier = Modifier
@@ -40,7 +81,7 @@ fun VerifyCodeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("¡Por favor revisa tus mensajes!", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text("¡Por favor revisa tu correo!", fontSize = 20.sp)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             "Te enviamos un código de 6 dígitos para que verifiques tu identidad.",
@@ -48,7 +89,7 @@ fun VerifyCodeScreen(
             color = Color.Gray
         )
         Spacer(modifier = Modifier.height(4.dp))
-        Text( // <-- Muestra el email en gris
+        Text(
             text = "Enviado a $email",
             fontSize = 14.sp,
             color = Color.Gray
@@ -61,21 +102,23 @@ fun VerifyCodeScreen(
             onValueChange = {
                 if (it.length <= 6) {
                     codeInput = it
-                    codigoIncorrecto = false // reset si cambia
+                    viewModel.clearError()
                 }
             },
             label = { Text("Código") },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            isError = codigoIncorrecto // 🔴 Borde rojo si es incorrecto
+            isError = errorMessage != null,
+            modifier = Modifier.fillMaxWidth()
         )
 
-        if (codigoIncorrecto) {
+        if (!errorMessage.isNullOrBlank()) {
             Text(
-                text = "Código incorrecto. Intenta nuevamente.",
+                text = errorMessage ?: "",
                 color = Color.Red,
                 fontSize = 12.sp,
-                modifier = Modifier.align(Alignment.Start).padding(top = 4.dp)
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(top = 4.dp)
             )
         }
 
@@ -83,28 +126,55 @@ fun VerifyCodeScreen(
 
         Button(
             onClick = {
-                if (codeInput == expectedCode) {
-                    navController.navigate("new_password/$email") // ruta real
-                } else {
-                    codigoIncorrecto = true
-                }
+                viewModel.verifyCode(
+                    email = email,
+                    totpCode = codeInput,
+                    onSuccess = {
+                        navController.navigate("new_password/$email/$codeInput")
+                    }
+                )
             },
-            enabled = codeInput.length == 6,
+            enabled = codeInput.length == 6 && !loading,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ingresar Código")
+            if (loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text("Ingresar código")
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("¿Aún no recibiste el código? Reenviar código", fontSize = 12.sp, color = Color.Gray)
+        // 🔁 Botón "Reenviar código"
+        OutlinedButton(
+            onClick = {
+                resendCount++
+                resendTrigger++
+                viewModel.requestReset(email) { /* sin navegación */ }
+            },
+            enabled = canResend && resendCount < maxResends,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                when {
+                    resendCount >= maxResends -> "Reintentos agotados"
+                    !canResend -> "Reenviar código (${secondsRemaining}s)"
+                    else -> "Reenviar código"
+                }
+            )
+        }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         TextButton(onClick = {
             navController.popBackStack()
         }) {
-            Text("⬅ Regresa al inicio de sesión")
+            Text("⬅ Regresar al inicio de sesión")
         }
     }
 }
